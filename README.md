@@ -10,10 +10,12 @@ For example:
 Remodeled build each year in each region(zipcode)
 
 #Tyler:
-Changes in `GROSS_TAX` over time by zip code. Possibly using a
-[Choropleth map](https://en.wikipedia.org/wiki/Choropleth_map). If
-we can show how variables are related to this change then that could
-be neat.
+* Changes in `GROSS_TAX` over time by zip code. Possibly using a
+  [Choropleth map](https://en.wikipedia.org/wiki/Choropleth_map). If
+  we can show how variables are related to this change then that could
+  be neat.
+* Identifying existing ownership strategies that seem to be going well
+  and figure out why that's happening.
 
 #Sumedh:
 
