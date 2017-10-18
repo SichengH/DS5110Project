@@ -2,24 +2,22 @@
 
 Here's the link to the data: https://data.boston.gov/dataset/property-assessment
 
-Step One: Explor the data (as a buyer or invester) and try to find 
-interesting ideas/information. Write it down if you could.
+1. Title: NAME
 
-For example: 
+1. Authors: Nischal Mahaveer Chand, Sumedh Sankhe, Sicheng Hao, Tyler Brown 
 
-Remodeled build each year in each region(zipcode)
+1. Summary:  
 
-#Tyler:
-* Changes in `GROSS_TAX` over time by zip code. Possibly using a
-  [Choropleth map](https://en.wikipedia.org/wiki/Choropleth_map). If
-  we can show how variables are related to this change then that could
-  be neat.
-* Identifying existing ownership strategies that seem to be going well
-  and figure out why that's happening.
+  * Problem: Try to find undervalued real estates in Boston
 
-#Sumedh:
+  * Description of the dataset: 
 
-#Nischal:
+  * Method of approach :
 
-#Sicheng:
-Remodeled build each year in each region(zipcode)
+1. The proposed plan of research: 
+
+  * Method:
+  - 2-3 paragraphs describing the methods you will use to solve the problem.
+    These may be processing, visualization, and analytic methods already discussed in class, or it may be designed for     infrastructure or an R package for working with a particular type of data, etc.
+1. Preliminary results: 
+1. References:  https://data.boston.gov/dataset/property-assessment
