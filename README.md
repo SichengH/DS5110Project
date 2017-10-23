@@ -1,23 +1,28 @@
 # DS5110Project
 
-Here's the link to the data: https://data.boston.gov/dataset/property-assessment
+1. Title: Property Assessment Visualization for the city of Boston
 
-1. Title: NAME
+2. Authors: Nischal Mahaveer Chand, Sumedh Sankhe, Sicheng Hao, Tyler Brown 
 
-1. Authors: Nischal Mahaveer Chand, Sumedh Sankhe, Sicheng Hao, Tyler Brown 
+3. Summary: (: 2-3 paragraphs summarizing the problem you wish to solve, including a description of the
+dataset, and a very brief, non-technical description of your proposed methods)
 
-1. Summary:  
+*Problem: How can we identify top performing property owners to demonstrate dominant strategies to new buyers?
 
-  * Problem: Try to find undervalued real estates in Boston
+* Description of the dataset:
+* Methods: Build a Shiny App to help people visualize our finding
+                                                                                                                                                                    
 
-  * Description of the dataset: 
 
-  * Method of approach :
 
-1. The proposed plan of research: 
+4. (The proposed plan of research: 2-3 paragraphs describing the methods you will use to solve the problem.
+These may be processing, visualization, and analytic methods already discussed in class, or it may be
+design for infrastructure or an R package for working with a particular type of data, etc.)
 
-  * Method:
-  - 2-3 paragraphs describing the methods you will use to solve the problem.
-    These may be processing, visualization, and analytic methods already discussed in class, or it may be designed for     infrastructure or an R package for working with a particular type of data, etc.
-1. Preliminary results: 
-1. References:  https://data.boston.gov/dataset/property-assessment
+*Shiny/Interactive plot
+*Map/Google Map interface
+
+
+5. Preliminary results: 
+
+6. References:  https://data.boston.gov/dataset/property-assessmen
