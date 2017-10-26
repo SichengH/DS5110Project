@@ -1,47 +1,23 @@
 # DS5110Project
 
-1. Title: Property Assessment Visualization for the city of Boston
+Title: Property Assessment Visualization for the city of Boston
 
-2. Authors: Nischal Mahaveer Chand, Sumedh Sankhe, Sicheng Hao, Tyler 
-   Brown 
+Authors: Tyler Brown , Sicheng Hao, Nischal Mahaveer Chand, Sumedh Sankhe
+Summary:
+The City of Boston provides an open data platform, Analyze Boston, containing information related to our lives in the city. Property assessment data from 2014-2017 is one of the resources available on their open data platform. Included in the property assessment data is "property, or parcel, ownership together with information about value, which ensures fair assessment of Boston taxable and non-taxable property of all types and classifications" (Citation of dataset here). Our team has aggregated each available year to create a time series dataset of Property Assessments in Boston. This aggregated dataset allows us to provide unique insights into property valuations and ownership strategies.
 
-3. Summary: (: 2-3 paragraphs summarizing the problem you wish to solve, 
-   including a description of the dataset, and a very brief, 
-   non-technical description of your proposed methods)
+The problem our group focusing is how can we identify top performing property owners to demonstrate the dominant strategy to new buyers? Build a Shiny App to help people visualize our findings of house price in each neighborhood as well as where is housing value increase the most. 
+                                                                                                                                                                    
+Method:
+The datasets we are having right now are separate yearly. The first step we are going to do is merge them into one single file. Then we are going to do some necessary cleaning for the data set. 
 
-* Problem: How can we identify top performing property owners to 
-  demonstrate dominant strategies to new buyers?
+In the second step, we are going to filter out the data that could represent the problem we are trying to solve. Maybe add some data from other sources( like Google Maps or Zillow)
 
-* Description of the dataset:
-
-The City of Boston provides an open data platform,
-[Analyze Boston](https://data.boston.gov/about), containing information
-related to our lives in the city. Property assessment data from 2014-2017
-is one of the resources available on their open data platform. Included
-within the property assessment data is "property, or parcel, ownership 
-together with value information, which ensures fair assessment of Boston 
-taxable and non-taxable property of all types and classifications"
-(**Citation of dataset here**). Our team has aggregated each available
-year to create a time series dataset of Property Assessments in Boston.
-This aggregated dataset allows us to provide unique insights into
-property valuations and ownership strategies.
+To help people understand the data better. In the last step we will make an interactive Shiny application to visualize our finding. 
 
 
-* Methods: Build a Shiny App to help people visualize our finding
+Preliminary results: 
+https://raw.githubusercontent.com/sichenghao1992/DS5110Project/master/property_delta2014-2017.png
 
 
-
-
-4. (The proposed plan of research: 2-3 paragraphs describing the methods 
-   you will use to solve the problem. These may be processing, 
-   visualization, and analytic methods already discussed in class, or it 
-   may be design for infrastructure or an R package for working with a 
-   particular type of data, etc.)
-
-*Shiny/Interactive plot
-*Map/Google Map interface
-
-
-5. Preliminary results: 
-
-6. References:  https://data.boston.gov/dataset/property-assessment
+References:  https://data.boston.gov/dataset/property-assessmen
