@@ -1,6 +1,7 @@
 # DS5110Project
 
-##  Title: Property Assessment Visualization for the city of Boston
+##  Title: 
+Property Assessment Visualization for the city of Boston
 
 ## Authors:  
 Tyler Brown , Sicheng Hao, Nischal Mahaveer Chand, Sumedh Sankhe
