@@ -44,7 +44,7 @@ assessment data from 2014-2017 is one of the resources available on their
  open data platform. Included in the property assessment data is 
 "property, or parcel, ownership together with information about value, 
 which ensures fair assessment of Boston taxable and non-taxable property 
-of all types and classifications" (Citation of dataset here). Our team 
+of all types and classifications" \cite{Property49:online}. Our team 
 has aggregated each available year to create a time series dataset of 
 Property Assessments in Boston. This aggregated dataset allows us to 
 provide unique insights into property valuations and ownership strategies.
@@ -70,10 +70,46 @@ an interactive Shiny application to visualize our finding.
 
 \section{Preliminary Results}
 
-\includegraphics[scale=0.85]{property_delta2014-2017}
+Our preliminary results include a data audit and descriptive findings.
+The data audit found trouble spots in our data such as missing values or
+incomplete values for coordinates as well as a small number of duplicate
+values for the given primary keys. The descriptive findings generated
+possible directions for our research question such as changes in 
+property valuations, dominant ownership strategies for owners 
+controlling a higher percentage of Boston property, and changes in
+property valuations for various land usage types.
+
+\subsection{Data Audit Findings}
+
+The major data audit findings are (1) the given primary keys, $PID$, are 
+not unique for 0.3\% because they are mapped to multiple geographic 
+coordinate pairs, (2) about 22\% of geographic coordinates are either 
+missing or unusable, (3) about 10\% of property parcels, identified with
+$PID$ do not pay taxes. Of that 10\%, we can explain about 49\% of this 
+variation due to tax-exempt land use status. The remaining 51\% is 
+associated with the "Condominium main" land usage type. It's unclear why 
+there are zero taxes associated with this land usage type without 
+contacting the city of Boston. This anomaly effects about 5\% of the 
+total data.
+
+\subsection{Descriptive Findings}
+Preliminary relationships found within the data are (1) residential 
+condominium units appear to have the lowest proportion of value but 
+previously we saw they had the second-highest proportion of gross tax,
+(2) residential family and residential land appears to have gained the 
+most value from 2014-2017, (3) the most significant gains in property
+assessment from 2014-2017 have been made land used for commerical and
+commerical condominium properties, (4) those who are further away from 
+the financial district appear to be generally paying a lower proportion 
+of taxes, and (5) larger real estate developers appear to choose one
+of two distinct strategies that involve either paying higher taxes with
+less property or lower taxes with more property. The figure below shows
+how location might effect changes in property assessments from 2014-2017.
+
+\includegraphics[scale=0.75]{property_delta2014-2017}
 
 
 \bibliography{references} 
-\bibliographystyle{apalike}
+\bibliographystyle{ieeetr}
 
 \end{document}
