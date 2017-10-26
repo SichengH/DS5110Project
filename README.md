@@ -18,10 +18,9 @@ has aggregated each available year to create a time series dataset of
 Property Assessments in Boston. This aggregated dataset allows us to 
 provide unique insights into property valuations and ownership strategies.
 
-The problem our group focusing is how can we identify top performing 
-property owners to demonstrate the dominant strategy to new buyers? Build
- a Shiny App to help people visualize our findings of house price in each
- neighborhood as well as where is housing value increase the most. 
+The problem our group is focusing on is how we can help people who are 
+looking for buying houses or condos by present an overlook of Boston 
+housing market reflected by their assessment values.
 
 
 ## Proposed plan of research:
