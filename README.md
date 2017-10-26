@@ -22,9 +22,8 @@ The problem our group focusing is how can we identify top performing
 property owners to demonstrate the dominant strategy to new buyers? Build
 a Shiny App to help people visualize our findings of house price in each
 neighborhood as well as where is housing value increase the most. 
-                               
-Method:
--------
+      
+## Method:
 The datasets we are having right now are separate yearly. The first step 
 we are going to do is merge them into one single file. Then we are going 
 to do some necessary cleaning for the data set. 
@@ -36,8 +35,11 @@ other sources( like Google Maps or Zillow)
 To help people understand the data better. In the last step we will make 
 an interactive Shiny application to visualize our finding. 
 
-
 Preliminary results:  [See Data Visualization](https://raw.githubusercontent.com/sichenghao1992/DS5110Project/master/property_delta2014-2017.png)
+=======
+##  Preliminary results:   
+https://raw.githubusercontent.com/sichenghao1992/DS5110Project/master/property_delta2014-2017.png
 
 
-References:  https://data.boston.gov/dataset/property-assessmen
+##  References:  
+https://data.boston.gov/dataset/property-assessmen
