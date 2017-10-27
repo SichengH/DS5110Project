@@ -39,9 +39,9 @@ provide unique insights into property valuations and ownership strategies.
 
 
 ## Proposed plan of research:
-The datasets we are having right now are separate yearly. The first step we are going to do is merge them into one single file. Then we are going to do some necessary cleaning and data wrangling for the data set. 
+The dataset we have right now is separated according to year in different files. The first step would be to merge them into one single file. Second, do some cleaning and data wrangling.
 
-After cleaning data, we are going to build a dashboard web application. First part will be a selection bar which user could select what kind of homes they are looking. Then the user needs to decide what type of information about the changes in the neighboorhood they want to know. For example, assessment changes or remodel status. In this step, we are going to apply some clustering model to see if there are any patterns exit. The third part will be an interactive map to help users visualize those changes. 
+After cleaning the data, we are going to build a dashboard web application. First part will be a selection bar were user could select what kind of homes they are looking. Then the user needs to decide what type of information about the changes in the neighboorhood they want to know. For example, assessment changes or remodel status. In this step, we are going to apply some clustering model to see if patterns exists. The third part will be an interactive map to help users visualize those changes. 
 
 
 ##  Preliminary results:
