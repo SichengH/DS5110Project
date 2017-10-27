@@ -39,16 +39,9 @@ provide unique insights into property valuations and ownership strategies.
 
 
 ## Proposed plan of research:
-The datasets we are having right now are separate yearly. The first step 
-we are going to do is merge them into one single file. Then we are going 
-to do some necessary cleaning for the data set. 
+The datasets we are having right now are separate yearly. The first step we are going to do is merge them into one single file. Then we are going to do some necessary cleaning and data wrangling for the data set. 
 
-In the second step, we are going to filter out the data that could 
-represent the problem we are trying to solve. Maybe add some data from 
-other sources( like Google Maps or Zillow)
-
-To help people understand the data better. In the last step we will make 
-an interactive Shiny application to visualize our finding. 
+After cleaning data, we are going to build a dashboard web application. First part will be a selection bar which user could select what kind of homes they are looking. Then the user needs to decide what type of information about the changes in the neighboorhood they want to know. For example, assessment changes or remodel status. In this step, we are going to apply some clustering model to see if there are any patterns exit. The third part will be an interactive map to help users visualize those changes. 
 
 
 ##  Preliminary results:
