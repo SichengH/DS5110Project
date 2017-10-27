@@ -48,4 +48,4 @@ After cleaning the data, we are going to build a dashboard web application. Firs
 *See "proposal.pdf" for preliminary results.*
 
 ##  References:
-https://data.boston.gov/dataset/property-assessmen
+https://data.boston.gov/dataset/property-assessment
