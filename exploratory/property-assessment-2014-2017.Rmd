@@ -1,0 +1,923 @@
+---
+title: "Boston Property Assessment Data Audit 2014-2017"
+author: Tyler Brown
+date: 2017-10-13
+output:
+  pdf_document:
+    highlight: zenburn
+---
+```{r, include = FALSE}
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(scales)
+library(stringr)
+library(tidyr)
+library(knitr)
+```
+
+```{r include = FALSE}
+# Part A: Boston property assessment data
+fy2014 <- read_csv("../homework/hw2/hw2-data/part-a/property-assessment-fy2014.csv")
+fy2015 <- read_csv("../homework/hw2/hw2-data/part-a/property-assessment-fy2015.csv")
+fy2016 <- read_csv("../homework/hw2/hw2-data/part-a/property-assessment-fy2016.csv")
+fy2017 <- read_csv("../homework/hw2/hw2-data/part-a/property-assessment-fy2017.csv")
+
+# Read data (Part A)
+fpath <- "../homework/hw2/hw2-data/part-a/property-assessment-fy-audited.csv"
+bospropw <- read_csv(fpath)
+
+# Get LU labels (Part A)
+LU = c("A","AH","C","CC","CD","CL","CM","CP","E","EA",
+       "I","R1","R2","R3","R4","RC","RL")
+LU_label = c("Residential 7 or more units",
+             "Agricultural/Horticultural",
+             "Commerical",
+             "Commerical Condominium",
+             "Residential condominium unit",
+             "Commerical land",
+             "Condominium main",
+             "Condo parking",
+             "Tax-exempt",
+             "Tax-exempt (121A)",
+             "Industrial",
+             "Residential 1-family",
+             "Residential 2-family",
+             "Residential 3-family",
+             "Residential 4 or more family",
+             "Mixed use (res. and comm.)",
+             "Residential land")
+LU_labels <- tibble(LU, LU_label)
+```
+
+Part A
+======
+
+Parts of problems 1-2 are due on October 10.
+
+Solution 1
+----------
+
+Find a dataset that is personally interesting to you. Import the dataset
+into R, put it into a tidy format, and print the first ten observations
+of the dataset.
+
+Data from [Boston Property Assessment](https://data.boston.gov/dataset/property-assessment)
+
+```{r, echo = FALSE}
+# Create minimal datasets for use in analysis
+fy2014min <- fy2014 %>%
+    mutate(year = 2014,
+           GROSS_TAX = GROSS_TAX * 100, # scale for 2017 values
+           LATITUDE = str_extract(Location, "[\\-\\d\\.]+"),
+           LONGITUDE = str_extract(Location, "[\\-\\d\\.]+(?=\\))")) %>%
+    rename(PID = Parcel_ID) %>%
+    select(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    group_by(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    count()
+
+fy2015min <- fy2015 %>%
+    mutate(year = 2015,
+           GROSS_TAX = GROSS_TAX * 100, # scale for 2017 values
+           LATITUDE = str_extract(Location, "[\\-\\d\\.]+"),
+           LONGITUDE = str_extract(Location, "[\\-\\d\\.]+(?=\\))")) %>%
+    select(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    group_by(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    count()
+
+fy2016min <- fy2016 %>%
+    mutate( year = 2016 ) %>%
+    select(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    group_by(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    count()
+
+fy2017min <- fy2017 %>%
+    mutate(year = 2017,
+           LATITUDE = "", # Note that latitude and longitude aren't
+           LONGITUDE = "" # available for 2017
+           ) %>%
+    select(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    group_by(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year) %>%
+    count()
+
+# Impute latitude and longitude for 2017
+fy2017min_imp <- left_join(x = fy2017min[,c("PID", "OWNER", "GROSS_TAX",
+                                         "LU", "year")],
+                        y = fy2016min[,c("PID", "LATITUDE", "LONGITUDE")],
+                        by = "PID")
+
+# Need to reverse geocode the remaining coordinates (2,049)
+# https://developers.google.com/maps/documentation/javascript/
+#      examples/geocoding-reverse
+# table(is.na(fy2017min_$LONGITUDE))
+
+# Create one dataframe
+bosprop <- bind_rows(fy2014min, fy2015min, fy2016min, fy2017min_imp) %>%
+    select(PID, OWNER, GROSS_TAX, LU, LATITUDE, LONGITUDE, year)
+
+# Check row counts
+#dim(fy2017min)[1] + dim(fy2016min)[1] + dim(fy2015min)[1] +
+#    dim(fy2014min)[1] == dim(bosprop)[1]
+
+#dim(fy2017min)[1] == dim(fy2017min_imp)[1]
+write_csv(bosprop, "../homework/hw2/hw2-data/part-a/property-assessment-fy-min.csv")
+kable(bosprop[1:10,], caption = "Boston Property Assessment: 2014-2017")
+```
+
+Solution 2
+----------
+
+### Step 1: Exploratory Data Analysis on the Dataset
+
+#### Data Audit
+
+We want to first know what the variables we are using actually mean. This
+is accomplished by referencing the data dictionary ([data.boston.gov/dataset/property-assessment/](https://data.boston.gov/dataset/property-assessment/resource/d195dc47-56f6-437c-80a8-7acbb8a2aa6d)). I've consolidated and
+updated the data dictionary below to reflect working definitions for
+this tidy data.
+
+```{r, echo = FALSE}
+data_dictionary <- tibble(variables = colnames(bosprop),
+                          definitions = c("Unique 10-digit parcel number.",
+"Primary owner of property as of January 1 preceding the start of the fi scal year",
+"Tax bill amount based on total assessed value multiplied by the tax rate", "Type of Property (land use)", "Coordinate used to identify location.",
+"Coordinate used to identify location.", "Year of property assessment."),
+field_length = c(10, 50, 13, 2, 8, 8, 4))
+```
+
+```{r kable, echo = FALSE, results= 'asis'}
+kable(data_dictionary)
+```
+
+The next step is to find out which variables contain blank values. I 
+define a blank value as either `NA` *or* a character string of length 0.
+
+```{r, echo = FALSE, warning = FALSE}
+is_blank <- function(df){
+    types <- sapply(df, class)
+    nans <- c()
+    blnks <- c()
+    for (varname in colnames(df)){
+        blnk_vals <- NA
+        na_vals <- table(is.na(df[varname]))["TRUE"]        
+        if (types[varname] == "character") {
+            blnk_vals <- table(sapply(df[varname], nchar) == 0)["TRUE"]
+        }
+        # Add number of blank values to atomic array
+        blnks <- c(blnks, blnk_vals)
+        nans <- c(nans, na_vals)
+    }
+    blank_df <- tibble(variables = colnames(df),
+                       num_blanks = blnks,
+                       num_nans = nans,
+                       field_types = types)
+    return(blank_df)
+}
+kable(is_blank(bosprop),
+      caption = "Variables Containing Blank or NA Values")
+```
+
+This data looks unusually well behaved. However, the differing number of
+`NA` values for `LATITUDE` and `LONGITUDE` is concerning. I would expect
+the number of `NA` values to be identical and correspond to the 2017 
+entries. The 2017 coordinates are unique in that Boston stopped reporting
+latitude and longitude that year. Instead, they chose to use a more 
+anonymous `GIS_ID`.
+
+There are two ways to work around the missing coordinates in 2017. We're
+dealing with properties which are hard to move. Therefore, coordinates
+from previous years should be able to impute most coordinate values for
+2017. This turned out to be the case. The second way to work around
+these missing coordinates is to use reverse geocoding.
+
+**Latitude & Longitude**
+
+The missing coordinates in 2017 do not explain the additional 12 `NA`
+values for `LONGITUDE`. Let's take a closer look.
+
+```{r, echo = FALSE, warning = FALSE}
+long_na <- bosprop %>%
+    filter( is.na(LONGITUDE) == TRUE, is.na(LATITUDE) == FALSE )
+kable(long_na)
+```
+
+It appears as though there are some non-sensical coordinates in this
+data. The city of Boston should not be collecting tax revenue from 
+Null Island (where the equator crosses the prime meridian). Let's pull 
+out other coordinates that are clearly not located in Boston. First step,
+see how many coordinates can be converted from Character to Numeric.
+
+```{r, echo = FALSE, warning = FALSE}
+long <- as.data.frame(table(is.na(as.numeric(bosprop$LONGITUDE))))
+colnames(long) <- c("Longitude Numeric Coercion", "Freq")
+lat <- as.data.frame(table(is.na(as.numeric(bosprop$LATITUDE))))
+colnames(lat) <- c("Latitude Numeric Coercion", "Freq")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+kable(long)
+```
+
+Longitude has about 20% of values which were unable to be converted from
+character to numeric.
+
+```{r, echo = FALSE, warning = FALSE}
+kable(lat)
+```
+
+Latitude also have about 20% of values which were unable to be converted.
+We now want to convert non-sensical coordinates to `NA` values.
+
+```{r, echo = FALSE, warning = FALSE}
+long_bogus <- as.data.frame(table(round(as.numeric(bosprop$LONGITUDE),0)))
+lat_bogus <- as.data.frame(table(round(as.numeric(bosprop$LATITUDE),0)))
+kable(long_bogus, caption = "Table of Rounded Longitudinal Numbers")
+kable(lat_bogus, caption = "Table of Rounded Latitudinal Numbers")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+bosprop.coord <- bosprop %>%
+    ungroup() %>%
+    mutate(
+        LATITUDE = ifelse(as.numeric(LATITUDE) > 40,
+                          as.numeric(LATITUDE), NA),
+        LONGITUDE = ifelse(as.numeric(LONGITUDE) < -65,
+                           as.numeric(LONGITUDE), NA),
+        )
+long_update <- as.data.frame(table(round(bosprop.coord$LONGITUDE,0)))
+lat_update <- as.data.frame(table(round(bosprop.coord$LATITUDE, 0)))
+kable(long_update, caption = "Table of Rounded Longitudinal Numbers")
+kable(lat_update, caption = "Table of Rounded Latitudinal Numbers")
+```
+
+We can now remove nonsense values from the coordinates and replace them
+with `NA` values.
+
+
+```{r, echo = FALSE, warning = FALSE}
+# Convert the bogus values
+bosprop.coord <- bosprop %>%
+    ungroup() %>%
+    mutate(
+        LATITUDE = ifelse(as.numeric(LATITUDE) > 40,
+                          as.numeric(LATITUDE), NA),
+        LONGITUDE = ifelse(as.numeric(LONGITUDE) < -65,
+                           as.numeric(LONGITUDE), NA),
+        )
+
+kable(as.data.frame(table(is.na(bosprop.coord$LONGITUDE))),
+      caption = "Longitude NA Values After Nonsense Removal")
+kable(as.data.frame(table(is.na(bosprop.coord$LATITUDE))),
+      caption = "Latitude NA Values After Nonsense Removal")
+
+# Mutate final 3 values so both are NA.
+bosprop.coord <- bosprop.coord %>%
+    mutate(
+        LATITUDE = ifelse(is.na(LONGITUDE), NA, LATITUDE),
+        LONGITUDE = ifelse(is.na(LATITUDE), NA, LONGITUDE)
+    )
+
+# Verify
+true_coords_na <- as.data.frame(table(is.na(bosprop.coord$LATITUDE))
+                                ["TRUE"] ==
+                                table(is.na(bosprop.coord$LONGITUDE))
+                                ["TRUE"])
+colnames(true_coords_na) <- c("Matching NA Count")
+kable(true_coords_na,
+      caption = "Matching number of NA values for Coordinates")
+```
+
+At this point, we have finished reviewing and resolving errors in the
+coordinates. There are a number of remedies for the missing data but
+given the scope of this assignment, it is sufficient to identify and
+make note of the data errors.
+
+**PID**
+
+Next up is the PID variable. Here we use an aggregate (frequency of a 
+frequency) to express the assumption that each PID should have no more
+than 4 entries pertaining to 2014-2017.
+
+```{r, echo = FALSE, warning = FALSE}
+pid_freq <- as_tibble(table(table(bosprop.coord$PID)))
+colnames(pid_freq) <- c("PID Freq", "Count")
+kable(pid_freq, caption = "Unique PID Value Occurances")
+```
+
+There are a non-trivial number of entries for 6 occurances (524). Let's
+inner join the trouble `PID` entries to the working data set and get
+a closer look at what's happening.
+
+```{r, echo = FALSE, warning = FALSE}
+pid_id <- bosprop.coord %>%
+    select(PID) %>%
+    group_by(PID) %>%
+    count() %>%
+    filter( n > 4 )
+
+pid_trouble <- inner_join(x = pid_id, y = bosprop.coord, by = "PID")
+
+# Verify the inner join
+# Verify a correct inner join
+pid_freq["PID Freq"] <- sapply(pid_freq["PID Freq"], as.numeric)
+pid_bad <- pid_freq[pid_freq["PID Freq"] > 4,]
+verjoin <- as_tibble(sum(pid_bad["PID Freq"] * pid_bad["Count"]) ==
+                     dim(pid_trouble)[1])
+kable(verjoin,
+      caption = "Verified inner join to capture PID Behavior")
+```
+
+If a PID is identical, then the coordinates should also be identical.
+Let's see if that's true.
+
+```{r, echo = FALSE, warning = FALSE}
+pid_coords <- pid_trouble %>%
+    select(PID, LONGITUDE, LATITUDE) %>%
+    group_by(LONGITUDE, LATITUDE) %>%
+    count(PID)
+pid_mystery <- as.data.frame(table(pid_coords$n))
+colnames(pid_mystery) <- c("Coordinate Pair Occurances", "Freq")
+kable(pid_mystery,
+      caption = "Coordinate Pair Occurances for Multiple PIDs")
+```
+
+Some PIDs are identical but the coordinate pairs are not. I find that
+coordinate pairs fall within the anticipated range for this subset.
+This means that some PIDs are mapped to multiple coordinate pairs
+and that's why they're showing up more than expected in this data. Let's
+more explicitly show this assertion.
+
+```{r, echo = FALSE, warning = FALSE}
+pid_confirm <- pid_trouble %>%
+    select(PID, LATITUDE, LONGITUDE) %>%
+    group_by(PID) %>%
+    count(LATITUDE, LONGITUDE)
+confirmed <- as_tibble(table(pid_confirm$n))
+colnames(confirmed) <- c("Coordinates per PID", "Freq")
+kable(confirmed,
+      caption = "Confirm PID Mapped to Multiple Unique Coordinates.")
+```
+
+**Owners**
+
+Now we want to verify that there are reasonable values for the 
+owner names. We've already check to see if there are any blank 
+values.
+
+```{r, echo = FALSE, warning = FALSE}
+owner_freq <- as_tibble(table(bosprop.coord$OWNER))
+colnames(owner_freq) <- c("owner_name", "count")
+owner_freq['char_count'] <- sapply(owner_freq["owner_name"], nchar)
+kable(owner_freq[owner_freq$char_count < 5,],
+      caption = "Number of Characters for Owner Name")
+```
+
+After running a frequency on the number of characters in each owner's
+name, I filtered on those with the least number of characters. These
+names still look legitimate on the whole so I will not take any
+further action at this time.
+
+**LU - Land Use**
+
+Labels needed to be added to the `LU` variable because very few people
+know what "R2" means without a table to reference.
+
+```{r, echo = FALSE, warning = FALSE}
+LU = c("A","AH","C","CC","CD","CL","CM","CP","E","EA",
+       "I","R1","R2","R3","R4","RC","RL")
+LU_label = c("Residential 7 or more units",
+             "Agricultural/Horticultural",
+             "Commerical",
+             "Commerical Condominium",
+             "Residential condominium unit",
+             "Commerical land",
+             "Condominium main",
+             "Condo parking",
+             "Tax-exempt",
+             "Tax-exempt (121A)",
+             "Industrial",
+             "Residential 1-family",
+             "Residential 2-family",
+             "Residential 3-family",
+             "Residential 4 or more family",
+             "Mixed use (res. and comm.)",
+             "Residential land")
+LU_labels <- tibble(LU, LU_label)
+kable(LU_labels, caption = "Land Use Labels")
+```
+
+There are more labels in the dataset than the data dictionary. Let's
+verify this statement.
+
+```{r, echo = FALSE, warning = FALSE}
+lu_freq <- as_tibble(table(bosprop.coord$LU))
+colnames(lu_freq) <- c("LU", "Freq")
+kable(as_tibble(dim(LU_labels)[1] < dim(lu_freq)[1]),
+      caption = "Verify: More Labels in Data than Data Dictionary")
+```
+
+Let's find the exceptions.
+
+```{r, echo = FALSE, warning = FALSE}
+lu_diff <- left_join(x = lu_freq, y = LU_labels, by = "LU") %>%
+    filter(is.na(LU_label))
+kable(lu_diff, caption = "LU Label Data Dictionary Exceptions")
+```
+
+We can see that the exceptions almost never occur in comparision
+to the size of our dataset. I'm going to set these mischevious
+LU values to `NA`.
+
+```{r, echo = FALSE, warning = FALSE}
+bosprop_lu <- bosprop.coord %>%
+    mutate(
+        LU = ifelse(LU %in% lu_diff$LU, NA, LU)
+    )
+
+bosprop_lu_freq <- bosprop_lu %>%
+    select(LU) %>%
+    group_by(LU) %>%
+    filter( !is.na(LU)) %>%
+    count()
+
+kable(as_tibble(dim(LU_labels)[1] == dim(bosprop_lu_freq)[1]),
+      caption = "LU Label Data Dictionary Exceptions Fixed")
+```
+
+Sweet, LU is good to go.
+
+
+**GROSS_TAX**
+
+In terms of a data audit, I've already checked for missing values. We
+want to verify that the `0` values are sensible and that there are no
+negative values present.
+
+```{r, echo = FALSE, warning = FALSE}
+tax_less_than_zero <- as.data.frame(table(bosprop.coord$GROSS_TAX < 0))
+kable(tax_less_than_zero,
+      caption = "PIDs with less than Zero Taxes")
+```
+
+Fortunately, there are no negative tax values. Let's see who's paying
+zero dollars in taxes.
+
+```{r, echo = FALSE, warning = FALSE}
+zero_tax <- as_tibble(table(bosprop_lu$GROSS_TAX == 0))
+colnames(zero_tax) <- c("Zero Dollar Tax", "Freq")
+kable(zero_tax, caption = "PIDs with Zero Taxes")
+```
+
+About 10 percent of PIDs are associated with zero dollars in tax expenses.
+The common intuition here would be that paying no taxes is because one is
+tax exempt. We can reference that information with the land use column.
+
+What is the land use associated with free taxes?
+
+```{r, echo = FALSE, warning = FALSE}
+zero_tax_lu <- bosprop_lu %>%
+    filter(GROSS_TAX == 0) %>%
+    select(LU) %>%
+    group_by(LU) %>%
+    count()
+
+# Add labels 
+zero_tax_lu <- left_join(x = zero_tax_lu, y = LU_labels, by = "LU")
+kable(zero_tax_lu, caption = "Land Use for PIDs Paying Zero Taxes")
+```
+
+It makes sense that tax-exempt land is not paying taxes. The single
+instance of a "Residential 3-family" not paying taxes will be written
+off as noise in the data and set to `NA`. The condominiums not paying
+taxes strikes me as unusual. I would have to contact the city of Boston
+to sort out that discrepancy. There are enough condominiums not paying
+taxes that I don't want to set them to `NA`. I'll leave it for now and
+make a foot note when presenting the data.
+
+```{r, echo = FALSE, warning = FALSE}
+bosprop_lu <- bosprop_lu %>%
+    mutate(
+        GROSS_TAX = ifelse((GROSS_TAX == 0 && LU == "R3"), NA, GROSS_TAX)
+    )
+```
+
+#### Data Audit Findings
+
+You may be familiar with the saying: "garbage in, garbage out". Peforming
+a data audit as a first step is crucial to performing a trustworthy
+analysis. My major findings are listed below:
+
+* `PID` is not a unique value for each row in the data because some parcel
+  numbers are mapped to multiple geographic coordinate pairs. This issue
+  comes up in `0.3`% of the data. It will be sufficient to make a 
+  footnote during exploratory data analysis.
+* About `22`% of geographic coordinates are either missing or unusable.
+  The data has been modified so that the missing number of values for
+  Latitude and Longitude are now equivalent. It will be important to
+  not draw any conclusions from just looking at the data spatially.
+* `OWNERS` and `LU` appear to be well-behaved. `LU` required some
+  trivial cleaning which I previously documented.
+* About `10`% of `PID` do not pay taxes. Of that `10`%, we can explain
+  about `49`% of this variation due to tax-exempt land use status. The
+  remaining `51`% is associated with the "Condominium main" `LU type`.
+  It's unclear why there are zero taxes associated with this `LU` type
+  without contacting the city of Boston. This anomaly effects about
+  `5`% of the total data. This will be an important foot note when
+  assessing change in property assessment values over time.
+
+
+### Exploring Relationships within the Data
+
+The high-level question to be answered is which properties are going
+to be most profitable over time. There are a number of lower level
+questions that can be asked to provide multiple perspectives when trying
+to answer the high level question.
+
+
+* How many properties have been assessed all four years?
+```{r, echo = FALSE, warning = FALSE}
+four_years <- bospropw %>%
+    select(PID, year) %>%
+    group_by(PID) %>%
+    summarize(
+        yr_total = sum(year, na.rm = TRUE)
+    )
+
+four_proof <- as_tibble(table(four_years$yr_total == 8062))
+colnames(four_proof) <- c("Matches Four Years", "Freq")
+kable(four_proof, caption = "PIDs with All Four Years")
+```
+
+* How many properties have been assessed less than four years?
+```{r, echo = FALSE, warning = FALSE}
+less_proof <- as_tibble(table(four_years$yr_total < 8062))
+colnames(less_proof) <- c("Less than Four Years", "Freq")
+kable(less_proof, caption = "PIDs with Less than Four Years")
+```
+
+* What kind of variation are we seeing for each variable? Some aggregates
+  have been reduced to the top ten values so their associated tables do
+  not run on for pages.
+
+```{r, echo = FALSE, warning = FALSE}
+# # PID
+agg_pid <- as_tibble(table(table(bospropw$PID)))
+colnames(agg_pid) <- c("Unique PID Count", "Freq")
+kable(agg_pid, caption = "Aggregate PID Occurences")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# # LU
+lu_freq <- as_tibble(table(bospropw$LU))
+colnames(lu_freq) <- c("LU", "Freq")
+kable(lu_freq, caption = "LU Frequency Distribution")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# # GROSS_TAX
+tax_agg <- as_tibble(table(table(bospropw$GROSS_TAX)))
+colnames(tax_agg) <- c("Gross Tax Value Count", "Occurances")
+tax_agg <- tax_agg %>%
+    arrange(desc(Occurances))
+kable(tax_agg[1:10,], caption = "Top 10 Aggregate Gross Tax Occurances")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# # OWNER
+owner_agg <- as_tibble(table(table(bospropw$OWNER)))
+colnames(owner_agg) <- c("Owner Value Count", "Occurances")
+owner_agg <- owner_agg %>%
+    arrange(desc(Occurances))
+kable(owner_agg[1:10,],
+      caption = "Top 10 Aggregate Owner Name Occurances")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# # Latitude
+lat_agg <- as_tibble(table(table(bospropw$LATITUDE)))
+colnames(lat_agg) <- c("Latitude Value Count", "Occurances")
+lat_agg <- lat_agg %>%
+    arrange(desc(Occurances))
+kable(lat_agg[1:10,],
+      caption = "Top 10 Aggregate Latitude Value Occurances")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# # Longitude
+lon_agg <- as_tibble(table(table(bospropw$LONGITUDE)))
+colnames(lon_agg) <- c("Longitude Value Count", "Occurances")
+lon_agg <- lon_agg %>%
+    arrange(desc(Occurances))
+kable(lon_agg[1:10,],
+      caption = "Top 10 Aggregate Longitude Value Occurences")
+```
+
+```{r, echo = FALSE, warning = FALSE}
+# # year
+year_freq <- as_tibble(table(bospropw$year))
+colnames(year_freq) <- c("Year", "Freq")
+kable(year_freq, caption = "Year Value Frequency")
+```
+
+These frequencies and aggregates help us better understand variation
+within each variable. The most frequent aggregate value for `PID` and
+`Owner Name` is 4. This is to be expected because this compiled dataset
+tracks `GROSS_TAX` over four years. Not all owners will have maintained
+property for the past four years but most would be expected to hold on
+to appreciating assets. The `GROSS_TAX` aggregate doesn't tell us too
+much, however, the number of unique occurances could suggest a higher
+level of variation over four years than ownership rates.
+
+Most importantly, there aren't any values jumping out at me which would
+suggest issues with data collection. An example of data collection issue
+would be a drastically lower frequency for the year 2017. Seeing a lower
+frequency for 2017 could suggest that property assessment records for the
+current year are incomplete.
+
+* Gross tax vs. year
+
+```{r, echo = FALSE, warning = FALSE}
+### Gross tax vs. year
+bospropl <- left_join(x = bospropw, y = LU_labels, by = "LU") %>%
+    mutate(year = factor(year)) %>%
+    group_by(LU, LU_label, year) %>%
+    summarize(
+        gross_tax_mean = mean(GROSS_TAX, na.rm = TRUE)
+    ) %>%
+    filter(!is.na(LU))
+
+ggplot(data = bospropl, mapping = aes(x = year, y = gross_tax_mean,
+                                      fill = LU_label)) +
+    geom_col(position = "dodge") + scale_y_continuous(labels = comma) +
+    labs(title = "Gross Tax by Year and Land Usage")
+```
+
+This figure shows us that the most significant gains in property
+assessment from 2014-2017 have been made land used for commerical and
+commerical condominium properties.
+
+* Location vs. gross tax (make a map)
+
+```{r, echo = FALSE, warning = FALSE}
+# Location vs. gross tax (make a map)
+mass <- map_data("state") %>%
+    filter(
+        region %in% c("massachusetts"))
+
+# Pick one year not 4
+yr2017 <- bospropw %>%
+    filter(year == 2017) %>%
+    mutate(gt_cut = round(GROSS_TAX / 1000000, 0))
+
+# Prepare a map of Massachusetts
+base <- ggplot() +
+    geom_polygon(data = mass, aes(x = long, y = lat, group = group),
+                 fill = "white", colour = "black")
+
+
+m <- base +
+    geom_point(data = yr2017,
+               aes(x = LONGITUDE, y = LATITUDE,
+                   color = gt_cut)) +
+    coord_fixed(xlim = c(-70.9, -71.25), ylim = c(42.19, 42.45),
+                ratio = 1.3)
+m
+```
+
+This map didn't come out very well but it's helpful for understanding
+how to make a better one.
+
+
+* owner property count vs. gross tax proportions
+
+```{r, echo = FALSE, warning = FALSE}
+# owner property count vs. gross tax proportions
+ownertax2017 <- bospropw %>%
+    filter(year == 2017) %>%
+    mutate(tax_total = sum(GROSS_TAX, na.rm = TRUE),
+           prop_count = sum(table(PID), na.rm = TRUE)) %>%
+    group_by(OWNER, tax_total, prop_count) %>%
+    summarize(
+        owner_tax = sum(GROSS_TAX, na.rm = TRUE),
+        num_properties = n()) %>%
+    mutate(tax_prop = owner_tax / tax_total,
+           num_properties_prop = num_properties / prop_count) %>%
+    select(OWNER, owner_tax, num_properties_prop,
+           tax_prop, num_properties_prop)
+
+p <- ggplot(data = ownertax2017,aes(x = num_properties_prop,
+                                    y = tax_prop)) + geom_bin2d()
+p
+```
+
+This shows that owners who pay a higher proportion of taxes are less
+likely to also have a higher proprotion of the properties in Boston.
+However, most owners pay a small proportion of taxes and have a small
+proportion of properties in Boston. For the bigger fish, we can see
+from this figure that the two distinct strategies are (a) higher taxes
+with less property, or (2) lower taxes with more property.
+
+* land use vs. gross tax proportions
+
+```{r, echo = FALSE, warning = FALSE}
+# land use vs. gross tax proportions
+lutax2017 <- bospropw %>%
+    filter(year == 2017) %>%
+    group_by(LU) %>%
+    summarize(
+        tax_sum = sum(GROSS_TAX, na.rm = TRUE),
+    ) %>%
+    mutate(
+        tax_total = sum(tax_sum, na.rm = TRUE),
+        tax_prop = tax_sum / tax_total,
+        )
+
+ggplot(data = lutax2017, mapping = aes(x = LU_label, y = tax_prop)) +
+    geom_point() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+This figure shows that land used for commerial properties are paying
+the highest proportion of property taxes in Boston. One-family
+residential buildings are a distant second.
+
+* Try to make a more informative map by considering tax payment
+proportions.
+
+```{r, echo = FALSE, warning = FALSE}
+# let's use the last one to redo that map
+lutax2017map <- left_join(x = yr2017, y = lutax2017, by = "LU")
+
+m2 <- base +
+    geom_point(data = lutax2017map, aes(x = LONGITUDE, y = LATITUDE,
+                                        color = tax_prop)) +
+    coord_fixed(xlim = c(-70.9, -71.25), ylim = c(42.19, 42.45),
+                ratio = 1.3)
+m2
+```
+
+Those who are further away from the financial district appear to be
+generally paying a lower proportion of taxes.
+
+Changes in Property Assessment
+------------------------------
+
+Reconfigure the data and compute a variable for change in property
+assessment between 2014 and 2017.
+
+* Compute proportion of property assessment increases. Use factors to
+  better identify profits and losses.
+
+```{r, echo = FALSE, warning = FALSE}
+#######################################################
+## Reconfigure data frame to assess profitability
+## 
+## Want the average change in profitability across all
+## available years. 
+## 
+#######################################################
+
+# filter out by year keeping only PID and GROSS_TAX
+bospropw2014 <- bospropw %>%
+    filter(year == 2014) %>%
+    select(PID, GROSS_TAX)
+bospropw2015 <- bospropw %>%
+    filter(year == 2015) %>%
+    select(PID, GROSS_TAX)
+bospropw2016 <- bospropw %>%
+    filter(year == 2016) %>%
+    select(PID, GROSS_TAX)
+bospropw2017 <- bospropw %>%
+    filter(year == 2017) %>%
+    select(PID, GROSS_TAX)
+
+# make new base dataframe
+bospropc <- bospropw %>%
+    select(PID, LATITUDE, LONGITUDE, OWNER, LU) %>%
+    group_by(PID, LATITUDE, LONGITUDE)
+
+# add 2014
+bospropc <- left_join(x = bospropc,
+                      y = bospropw2014,
+                      by = "PID") %>%
+    ungroup() %>%
+    transmute(PID = PID,
+              LATITUDE = LATITUDE,
+              LONGITUDE = LONGITUDE,
+              LU = LU,
+              OWNER = OWNER,
+              GROSS_TAX2014 = GROSS_TAX)
+
+# add 2017
+bospropc <- left_join(x = bospropc,
+                      y = bospropw2017,
+                      by = "PID") %>%
+    ungroup() %>%
+    transmute(PID = PID,
+              LATITUDE = LATITUDE,
+              LONGITUDE = LONGITUDE,
+              LU = LU,
+              OWNER = OWNER,
+              GROSS_TAX2014 = GROSS_TAX2014,
+              GROSS_TAX2017 = GROSS_TAX)
+
+
+# Compute proportion of property assessment increases.
+bospropd <- bospropc %>%
+    mutate(
+        val_change = ifelse(GROSS_TAX2017 == 0 | GROSS_TAX2014 == 0,
+                            0, GROSS_TAX2017 - GROSS_TAX2014),
+        val_prop = ifelse(GROSS_TAX2017 == 0, 0,
+                          val_change / GROSS_TAX2014)
+    )
+
+bospropd$val_factors <- NA
+x25 <- quantile(bospropd$val_prop, 0.25, na.rm = TRUE)
+x50 <- median(bospropd$val_prop, na.rm = TRUE)
+x75 <- quantile(bospropd$val_prop, 0.75, na.rm = TRUE)
+x100 <- Inf
+
+bospropd$val_factors[(bospropd$val_prop < 0)] <- "negative"
+bospropd$val_factors[(bospropd$val_prop == 0)] <- "none"
+bospropd$val_factors[(bospropd$val_prop > 0 &
+                      bospropd$val_prop <= x25)] <- "0_to_quantile_25"
+bospropd$val_factors[(bospropd$val_prop > x25 &
+                      bospropd$val_prop <= x50)] <- "quantile_25_50"
+bospropd$val_factors[(bospropd$val_prop > x50 &
+                      bospropd$val_prop <= x75)] <- "quantile_50_75"
+bospropd$val_factors[(bospropd$val_prop > x75 &
+                      bospropd$val_prop <= x100)] <- "quantile_75_100"
+
+bospropd$val_factors <- factor(bospropd$val_factors,
+                               levels = c("negative", "none",
+                                          "0_to_quantile_25",
+                                          "quantile_25_50",
+                                          "quantile_50_75",
+                                          "quantile_75_100"))
+```
+
+* Proportion of change in property assessment by land use
+
+
+```{r, echo = FALSE, warning = FALSE}
+# Proportion of change in property assessment by land use
+bospropd <- left_join(x = bospropd, y = LU_labels, by = "LU")
+ggplot(data = bospropd, mapping = aes(x = LU_label, y = val_prop)) +
+    geom_point() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+Residential condominium units appear to have the lowest proportion
+of value but previously we saw they had the second-highest proportion
+of gross tax. Residential family and Residential land appears to have
+gained the most value from 2014-2017.
+
+* Map profitability throughout Boston. Include land use.
+
+```{r, echo = FALSE, warning = FALSE}
+# Map profitability throughout Boston. Include land use.
+m3 <- base +
+    geom_point(data = bospropd,
+               aes(x = LONGITUDE, y = LATITUDE,
+                   color = val_factors, alpha = 0.01)) +
+    coord_fixed(xlim = c(-70.9, -71.25), ylim = c(42.19, 42.45),
+                ratio = 1.3)
+m3
+```
+
+What is now known about which properties are going to be profitable
+over time?
+
+Figure blank is the most informative. The maps tend to provide a nice
+overview but are somewhat cluttered. I would experiment more with
+choropleth maps if given more time.
+
+Findings Summary
+----------------
+
+* Residential condominium units appear to have the lowest proportion
+of value but previously we saw they had the second-highest proportion
+of gross tax.
+* Residential family and Residential land appears to have
+gained the most value from 2014-2017.
+* This figure shows us that the most significant gains in property
+assessment from 2014-2017 have been made land used for commerical and
+commerical condominium properties.
+* Those who are further away from the financial district appear to be
+generally paying a lower proportion of taxes.
+* For the bigger fish, we can see
+from this figure that the two distinct strategies are (a) higher taxes
+with less property, or (2) lower taxes with more property.
+
+
+
+
+
+
+
+
+
+
+
+
