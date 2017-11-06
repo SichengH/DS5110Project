@@ -1,7 +1,9 @@
 library(data.table)
-library(dplyr)
+library(tidyverse)
 library(ggmap)
 
+
+#west F
 #Data read in 
 file.list <- list.files(pattern='*.csv')
 for (i in 1:length(file.list)) assign(file.list[i], read.csv(file.list[i]))
@@ -19,6 +21,7 @@ lat_lon <- function(x){
 }
 
 `property-assessment-fy2014.csv` <- lat_lon(`property-assessment-fy2014.csv`)
+
 `property-assessment-fy2015.csv` <- lat_lon(`property-assessment-fy2015.csv`)
 
 #Changing some column names
@@ -27,6 +30,7 @@ colnames(`property-assessment-fy2014.csv`)[13] <- "OWNER_MAIL_ADDRESS"
 colnames(`property-assessment-fy2014.csv`)[14] <- "OWNER_MAIL_CS"
 colnames(`property-assessment-fy2014.csv`)[15] <- "OWNER_MAIL_ZIPCODE"
 `property-assessment-fy2014.csv`$U_NUM_PARK <- NA
+
 
 #identifying the rows by year
 `property-assessment-fy2014.csv`$Year <- 2014
@@ -58,7 +62,14 @@ bind_df1%>%
          U_KITCH_STYLE = NA,
          U_INT_FIN = NA,
          U_INT_CND = NA,
-         U_VIEW = NA)->bind_df1
+         U_VIEW = NA)%>%
+  unite(full_address,
+        ST_NUM,
+        ST_NAME,
+        ST_NAME_SUF, 
+        ZIPCODE, 
+        sep = " ", 
+        remove = FALSE)->bind_df1
 
 
 
@@ -69,7 +80,7 @@ bind_df1%>%
          Year = 2016)%>%
   rename(Latitude = LATITUDE,
          Longitude = LONGITUDE)%>%
-  unite(ADDress,
+  unite(full_address,
         ST_NUM,
         ST_NAME,
         ST_NAME_SUF, 
@@ -77,25 +88,49 @@ bind_df1%>%
         sep = " ", 
         remove = FALSE)-> `property-assessment-fy2016.csv`
 
+`property-assessment-fy2016.csv`%>%
+  filter(is.na(Latitude)|is.na(Longitude))%>%
+  select(PID,Latitude,Longitude)%>%
+  unique()->prop16
 
-#downloading geocodes for missing co-ordniates
-# for(j in 1:nrow(prop16)){
-#     result <- geocode(prop16$ADDress[j],
-#                       output = "latlona",
-#                       source = "google")
-#     prop16$Longitude[j] <- as.numeric(result[1])
-#     prop16$Latitude[j] <- as.numeric(result[2])
-# }
-# 
-# `property-assessment-fy2016.csv`%>%
-#   filter(!is.na(Latitude)| !is.na(Longitude))%>%
-#   rbind_list(prop16)->test
+`property-assessment-fy2014.csv`%>%
+  select(PID,Latitude,Longitude)%>%
+  unique()->prop14
 
+`property-assessment-fy2015.csv`%>%
+  select(PID,Latitude,Longitude)%>%
+  unique()->prop15
+
+`property-assessment-fy2016.csv`%>%
+  filter(!is.na(Latitude)|!is.na(Longitude))%>%
+  select(PID,Latitude,Longitude)%>%
+  unique()->q1
+
+q1%>%
+  left_join(prop16,by = "PID")%>%
+  left_join(prop14,by = "PID")%>%
+  left_join(prop15,by = "PID")%>%
+  select(-c(Latitude.y,
+            Longitude.y,
+            Latitude.x.x,
+            Longitude.x.x,
+            Latitude.y.y,
+            Longitude.y.y))->q2
+
+`property-assessment-fy2016.csv`%>%
+  filter(!is.na(Latitude)|!is.na(Longitude))%>%
+  select(PID,Latitude,Longitude)%>%
+  left_join(q2, by = "PID")->q3
+
+`property-assessment-fy2017.csv`%>%
+  left_join(q2,by ="PID")%>%
+  rename(Latitude = Latitude.x,
+         Longitude = Longitude.x)->`property-assessment-fy2017.csv`
 
 #creating an address columns to download co-ordinates from the web
 `property-assessment-fy2017.csv`%>%
   mutate(Year = 2017)%>%
-  unite(ADDress,
+  unite(full_address,
         ST_NUM,
         ST_NAME,
         ST_NAME_SUF, 
@@ -125,3 +160,4 @@ final_df <- rbindlist(list(bind_df1,bind_df2), fill = T)
 
 
 write.csv(final_df,"Combined_data.csv")
+
