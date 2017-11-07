@@ -141,7 +141,7 @@ q1%>%
 
 #using the google api to download co-ordinates
 # for(i in 1:nrow(`property-assessment-fy2017.csv`)){
-#   result <- geocode(`property-assessment-fy2017.csv`$ADDress[i],
+#   result <- geocode(`property-assessment-fy2017.csv`$full_address[i],
 #                     output = "latlona",
 #                     source = "google")
 #   `property-assessment-fy2017.csv`$Longitude[i] <- as.numeric(result[1])
@@ -154,7 +154,7 @@ bind_df2 <- rbindlist(list(`property-assessment-fy2016.csv`,`property-assessment
 bind_df2%>%
   rename(MAIL_CS = MAIL.CS,
          OWNER_MAIL_ZIPCODE = MAIL_ZIPCODE)%>%
-  select(-c(GIS_ID,ADDress))->bind_df2
+  select(-c(GIS_ID,full_address))->bind_df2
 
 final_df <- rbindlist(list(bind_df1,bind_df2), fill = T)
 
