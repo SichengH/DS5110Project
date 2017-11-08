@@ -1,0 +1,38 @@
+---
+title: "Boston Property Assessment Data Audit 2014-2017"
+author: Tyler Brown
+date: 2017-10-13
+output:
+  pdf_document:
+    highlight: zenburn
+---
+```{r, include = FALSE}
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(scales)
+library(stringr)
+library(tidyr)
+library(knitr)
+
+# custom
+source("data_audit.R")
+```
+
+```{r, include = FALSE}
+# Boston property assessment data
+combined <- read_csv("../data/Combined_data.csv")
+```
+
+Here's the counts of what's blank or not.
+
+```{r, echo = FALSE}
+results <- is_blank(combined) %>%
+    mutate(
+        percent_nan = round(num_nans / dim(combined)[1], 4) * 100
+    )
+
+kable(results, caption = "Count of blanks and NAs")
+```
+
+
