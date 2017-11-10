@@ -24,15 +24,134 @@ source("data_audit.R")
 combined <- read_csv("../data/Combined_data.csv")
 ```
 
+Summary
+=======
+
+The purpose of a data audit is to dig up skeletons in the closet. Let's
+review the skeletons we found:
+
+* `PID-year` is our unique ID for this dataset. It occurs more than once
+  less than one percent of the time.
+* About 27% of the variables are either filled out more than 70% of the
+  time or failed a count of blank values test.
+* Location appears to be most easily mapped using `ZIPCODE` instead of
+  Latitude and Longitude because they're missing about 35% of the time.
+* `GROSS_TAX` appears to be filled out without any incorrect entries.
+* Additional data audit information can be found in the 
+  "property-assessment-2014-2017" pdf.
+
+
+Useful Columns
+--------------
+
+We can get an initial idea about which columns are useful by seeing
+how often they're filled out. The following columns are not blank
+or NA more than 70% of the time.
+
+```{r, echo = FALSE}
+results2 <- results %>%
+    filter(percent_nan <= 30 | is.na(percent_nan)) %>%
+    arrange(variables)
+kable(results2, caption = "Percentage of columns at least 70% filled out")
+```
+
+Most of our variables are missing from the above table. The next
+table shows the percentage of variables which are at least 70% populated.
+
+```{r, echo = FALSE}
+kable(tibble(
+    populated_70 = round(length(results2$variables) /
+                         length(results$variables), 4) * 100
+), caption = "Percentage of Variables 70% populated including NAs")
+```
+
+Next we want to double check those columns which came up as `NA` for
+the 'is blank' tests. 
+
+```{r, echo = FALSE}
+results3 <- results %>%
+    filter(is.na(num_blanks) & is.na(num_nans))
+
+kable(results3, caption = "NA values for Is Blank Test")
+```
+
+Come back to this later.
+
+Checking for each Unique ID in Each Row
+---------------------------------------
+
+Concatenated `PID` and `year`. This should be a unique value for each
+row. 
+
+```{r, echo = FALSE}
+uid <- combined %>%
+    mutate( yearPID = paste(Year, PID, sep = "-") ) %>%
+    group_by(yearPID) %>%
+    count() %>%
+    group_by(n) %>%
+    count()
+
+kable(tibble(non_unique_ids = sum(uid[uid$n >= 2,]$nn) / sum(uid$nn)),
+      caption = "Percentage of unique values occuring more than once.")
+```
+
+It looks like almost all of the time we have unique IDs. However, we will
+want to filter out the `PID-year` values which are not unique.
+
+Checking for Variables that can be used to figure out location
+--------------------------------------------------------------
+
+Since a nontrivial amount of our project involves mapping, we want to
+make sure we're able to map `PID-year` to a location. In the appendix,
+`Latitude` and `Longitude` are shown to have `NA` values about 35% of the
+time. Maybe we can find a way to impute coordinate values if it makes
+sense.
+
+The `ZIPCODE` variable appears to almost be completely filled out. This
+doesn't really matter for location purposes if all the zip codes are
+identical. Let's see how much fidelity we're getting out of `ZIPCODE`.
+
+```{r, echo = FALSE}
+zipp <- combined %>%
+    group_by(ZIPCODE) %>%
+    count() %>%
+    arrange(desc(n))
+
+kable(zipp, caption = "Zip Code by Frequency")
+```
+
+It seems like trying the zip code route for location may be the best
+approach given currently available data.
+
+Checking variables that can be used to measure value.
+-----------------------------------------------------
+
+```{r, echo = FALSE}
+divisor <- 100000000
+grosstax <- combined %>%
+    mutate(GROSS_TAX_BIN = floor(GROSS_TAX / divisor)) %>%
+    group_by(GROSS_TAX_BIN) %>%
+    count()
+
+kable(grosstax, caption = "Gross Tax Frequency, $100 Million Bins")
+```
+
+There doesn't seem to be any junk data in `GROSS_TAX`.
+
+
+
+Appendix
+--------
+
 Here's the counts of what's blank or not.
 
 ```{r, echo = FALSE}
 results <- is_blank(combined) %>%
     mutate(
         percent_nan = round(num_nans / dim(combined)[1], 4) * 100
-    )
+    ) %>%
+    arrange(variables)
 
 kable(results, caption = "Count of blanks and NAs")
 ```
-
 
