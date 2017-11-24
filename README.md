@@ -62,3 +62,43 @@ help users visualize those changes.
 
 ##  References:
 https://data.boston.gov/dataset/property-assessment
+
+
+
+## Outline:
+
+# Part one:selection bar(sidebar of properity information selection)
+
+# Part two:tabs(models)
+(After select properity type)
+Model_1: Remodeled properities and prediction
+
+Visualize TR_BUILD and YR_REMOD within each zipcode
+
+Predict how much properties are likely to be remodeled (by each zip code region)
+
+and then visualize density
+
+Model_2: Interior detail
+
+Bath style, kitchen style, heat, AC, interior finish, interior condition, view
+
+Visualize each part of each zipcode
+
+Model_3:Assessment value change(need wide format)
+
+The year 2014-2017, find the key to merge our data into a wide format DataFrameCallback
+
+find assessment value change(not necessarily everything)
+
+visualize the change and prediction of the future years(two or three years)
+
+
+
+# Part three: map
+
+
+
+
+
+
