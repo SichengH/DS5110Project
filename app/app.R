@@ -1,6 +1,7 @@
 library(shinydashboard)
 library(dplyr)
 library(dbplyr)
+library(leaflet)
 library(purrr)
 library(shiny)
 library(highcharter)
@@ -15,7 +16,10 @@ library(nycflights13)
 airline_list <- airlines %>%
   collect()  %>%
   split(.$name) %>%
-  map(~.$carrier)
+    map(~.$carrier)
+
+r_colors <- rgb(t(col2rgb(colors()) / 255))
+names(r_colors) <- colors()
 
 
 ui <- dashboardPage(
@@ -70,11 +74,18 @@ ui <- dashboardPage(
                            p(textOutput("monthly")),
                            highchartOutput("group_totals")),
                     column(width = 5,
-                           p("Click on an airport in the plot to see the details"),
+                           p(paste("Click on an airport in the plot to",
+                                   "see the details")),
                            highchartOutput("top_airports"))
                   )
-                )
-    )
+                ),
+                tabPanel(
+                    title = "Map Dashboard",
+                    value = "page2",
+                    leafletOutput("mymap"),
+                    p(),
+                    actionButton("recalc", "New points")
+                ))
   )
 )
 
@@ -158,11 +169,14 @@ server <- function(input, output, session) {
              color = "teal")
   })
   
-  # Events in Highcharts can be tracked using a JavaScript. For data points in a plot, the 
-  # event.point.category returns the value that is used for an additional filter, in this case
-  # the month that was clicked on.  A paired observeEvent() command is activated when
+  # Events in Highcharts can be tracked using a JavaScript. For data 
+  # points in a plot, the event.point.category returns the value that is 
+  # used for an additional filter, in this case the month that was 
+  # clicked on.  A paired observeEvent() command is activated when
   # this java script is executed
-  js_click_line <- JS("function(event) {Shiny.onInputChange('line_clicked', [event.point.category]);}")
+    js_click_line <- JS(paste0("function(event) {Shiny.onInputChange(",
+                               "'line_clicked', [event.point.category])",
+                               ";}"))
   
   output$group_totals <- renderHighchart({
     
@@ -196,10 +210,13 @@ server <- function(input, output, session) {
   # Tracks the JavaScript event created by `js_click_line`
   observeEvent(input$line_clicked != "",
                if(input$month == 99)
-                 updateSelectInput(session, "month", selected = input$line_clicked),
+                   updateSelectInput(session, "month",
+                                     selected = input$line_clicked),
                ignoreInit = TRUE)
   
-  js_bar_clicked <- JS("function(event) {Shiny.onInputChange('bar_clicked', [event.point.category]);}")
+    js_bar_clicked <- JS(paste0("function(event) {Shiny.onInputChange(",
+                                "'bar_clicked', [event.point.category]",
+                                ");}"))
   
   output$top_airports <- renderHighchart({
     # The following code runs inside the database
@@ -233,14 +250,20 @@ server <- function(input, output, session) {
                  airport <- input$bar_clicked[1]
                  tab_title <- paste(input$airline, 
                                     "-", airport , 
-                                    if(input$month != 99) paste("-" , month.name[as.integer(input$month)]))
+                                    if(input$month != 99) {
+                                        paste("-" ,
+                                              month.name[as.integer(
+                                                  input$month)])
+                                    })
                  
                  if(tab_title %in% tab_list == FALSE){
                    details <- db_flights %>%
                      filter(dest_name == airport,
                             carrier == input$airline)
                    
-                   if(input$month != 99) details <- filter(details, month == input$month) 
+                   if(input$month != 99) {
+                       details <- filter(details, month == input$month)
+                   }
                    
                    details <- details %>%
                      head(100) %>% 
@@ -276,6 +299,15 @@ server <- function(input, output, session) {
     tab_list %>%
       walk(~removeTab("tabs", .x))
     tab_list <<- NULL
+  })
+
+  # maps tab
+  output$mymap <- renderLeaflet({
+    leaflet(data = airports) %>%
+      addProviderTiles(providers$Stamen.TonerLite,
+        options = providerTileOptions(noWrap = TRUE)
+      ) %>%
+        addMarkers(~lon, ~lat, popup = ~name, label = ~name)
   })
   
 }
