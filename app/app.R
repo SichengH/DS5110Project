@@ -302,16 +302,12 @@ server <- function(input, output, session) {
   })
 
   # maps tab
-  points <- eventReactive(input$recalc, {
-    cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
-  }, ignoreNULL = FALSE)
-
   output$mymap <- renderLeaflet({
-    leaflet() %>%
+    leaflet(data = airports) %>%
       addProviderTiles(providers$Stamen.TonerLite,
         options = providerTileOptions(noWrap = TRUE)
       ) %>%
-      addMarkers(data = points())
+        addMarkers(~lon, ~lat, popup = ~name, label = ~name)
   })
   
 }
