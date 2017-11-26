@@ -1,3 +1,10 @@
+########################################################################
+## Need coordinates for PID which are missing lat/lng.
+##
+## Address data provided by https://openaddresses.io/
+## Parsing address data so it can be joined to BOS data.
+#######################################################################
+
 library(tidyverse)
 
 bad_addr <- read_csv("./data/hbad_addr.csv")
