@@ -14,7 +14,7 @@ library(nycflights13)
 # needed to display the name of the airline but pass its
 # Carrier code as the value
 
-houses <- read_csv("data/Combined_data.csv")
+#houses <- read_csv("data/Combined_data.csv")
 
 airline_list <- airlines %>%
   collect()  %>%
@@ -26,7 +26,7 @@ names(r_colors) <- colors()
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Boston Properity Assessment Visualizaiton",
+  dashboardHeader(title = "Boston Properity Assessment Visualization",
                   titleWidth = 500),
   dashboardSidebar(width = 300,
     selectInput(
@@ -304,13 +304,15 @@ server <- function(input, output, session) {
     tab_list <<- NULL
   })
 
-  # maps tab
+    # maps tab
   output$mymap <- renderLeaflet({
     leaflet(data = airports) %>%
       addProviderTiles(providers$Stamen.TonerLite,
         options = providerTileOptions(noWrap = TRUE)
       ) %>%
-        addMarkers(~lon, ~lat, popup = ~name, label = ~name)
+        addMarkers(~lon, ~lat, popup = ~name, label = ~name,
+                   clusterOptions = markerClusterOptions(),
+                   clusterId = "quakesCluster")
   })
   
 }
