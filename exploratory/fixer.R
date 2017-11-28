@@ -9,7 +9,7 @@ library(tidyverse)
 
 boston <- read_csv("./data/ma/city_of_boston.csv")
 
-# spliting st address and lowercase
+# spliting address suffix from address and lowercase
 boston <- boston %>%
   rowwise() %>%
   mutate(LSUF = length(strsplit(STREET, "\\s+")[[1]]),
@@ -23,15 +23,18 @@ boston <- boston %>%
   select(-LSUF, -RSUF)
 
 boston2 <- boston
-bad_addr2 <- bad_addr
 
+# filter observations where NUMBER contains "-"
 boston2h <- boston2 %>% 
   filter(str_detect(NUMBER, "\\-"))
 
+# opposite of above
 boston2g <- boston2 %>% 
   filter(!str_detect(NUMBER, "\\-"))
 
-# range
+# unroll the address that have "-", 
+# eg: 111-113 Adam St, would turn into 3 row
+#   with 111, 112, and 113 Adam St
 boston3 <- boston2h %>% 
   rowwise() %>%
   mutate(
@@ -48,9 +51,11 @@ boston3 <- boston2h %>%
     })) %>%
   unnest(NL)
 
+# Merge the new data
 boston4 <- bind_rows(boston3, boston2g) %>%
   mutate( NUMBER = ifelse(is.na(NL), NUMBER, NL) )
 
+# Remove duplicate values
 boston4_dedupe <- boston4 %>%
   group_by(NUMBER, ST_NAME, SUF, POSTCODE) %>%
   summarize(
@@ -75,9 +80,10 @@ boston4_dedupe <- boston4 %>%
 boston4 <- read_csv("./data/boston4_hacked.csv") %>% 
   select(LON, LAT, NUMBER, POSTCODE, HASH, ST_NAME, SUF)
 
-###################
-## bad_addr
-###################
+#################################################################################
+## bad_addr 
+## subset of the main dataset where LAT and LON are mission
+################################################################################
 
 bad_addr <- read_csv("./data/hbad_addr.csv")
 bad_addr <- bad_addr %>% ungroup()
@@ -88,7 +94,7 @@ bad_addr <- bad_addr %>%
          ST_NAME_SUF = tolower(ST_NAME_SUF), 
          ZIPCODE = str_extract(ZIPCODE, "\\d+"))
 
-# range 
+# unroll like we did with the other dataset
 bad_addr2 <- bad_addr %>% 
   rowwise() %>%
   filter(str_detect(ST_NUM, "\\d+")) %>%
@@ -116,26 +122,25 @@ bad_addr2_dedupe <- bad_addr2 %>%
     PID_CONCAT = paste(PID, collapse =",")
   ) 
 
-##############################################
-# the real shit begins here! turn back now!
-# 
+###############################################################################
 # Separate into two buckets based on complete cases.
 # Certain addresses do not include a st number but still
 # need to be assigned coordinates.
-##############################################
+###############################################################################
 
 # complete cases bucket
 bad2_complete <- bad_addr2_dedupe[complete.cases(bad_addr2_dedupe),] %>%
   mutate(
-    addr_key = paste(ST_NUM, ST_NAME, ZIPCODE)
+    addr_key = paste(ST_NUM, ST_NAME, ZIPCODE) 
   )
 
+# take complete cases for boston data too
 boston4_complete <- boston4[complete.cases(boston4), ] %>%
   mutate(
     addr_key = paste(NUMBER,  ST_NAME, POSTCODE)
   )
 
-
+# join on address
 bmatch <- inner_join(x = bad2_complete, y = boston4_complete,
                      by = "addr_key")
 
@@ -147,43 +152,51 @@ pid_expand <- bmatch %>%
   unnest(pide)
 
 
-# just check
+# just check - 83% data fixed. Good enough, discard the other bucket
 length(intersect(pid_expand$pide, bad_addr$PID))/length(unique(bad_addr$PID))
 
-
+# the below work with the other bucket
 # not complete cases
-bad2_not_complete <- bad_addr2_dedupe[!complete.cases(bad_addr2_dedupe),] %>%
-  ungroup() 
-
-total_bad2_not_complete <- nrow(bad2_not_complete)
-
-bad2_not_complete_subset <- bad2_not_complete %>% 
-    select(ST_NAME, ZIPCODE, PID_CONCAT)
-
-bad2_not_complete_subset <- bad2_not_complete_subset[
-  complete.cases(bad2_not_complete_subset),]
-
+#bad2_not_complete <- bad_addr2_dedupe[!complete.cases(bad_addr2_dedupe),] %>%
+#  ungroup() 
+#
+#total_bad2_not_complete <- nrow(bad2_not_complete)
+#
+#bad2_not_complete_subset <- bad2_not_complete %>% 
+#    select(ST_NAME, ZIPCODE, PID_CONCAT)
+#
+#bad2_not_complete_subset <- bad2_not_complete_subset[
+#  complete.cases(bad2_not_complete_subset),]
+#
 # check percentage 
-nrow(bad2_not_complete_subset)/ total_bad2_not_complete
-
+#nrow(bad2_not_complete_subset)/ total_bad2_not_complete
+#
 # fixing for not complete
-bader2 <- bad2_not_complete_subset %>%
-  mutate(addr_key = paste(ST_NAME, ZIPCODE))
-
-boston4_for_bader2 <- boston4[complete.cases(boston4), ] %>%
-  mutate(
-    addr_key = paste(ST_NAME, POSTCODE)
-  )
-
-bmatch_bad <- inner_join(x = bader2, y = boston4_for_bader2,
-                     by = "addr_key")
+#bader2 <- bad2_not_complete_subset %>%
+#  mutate(addr_key = paste(ST_NAME, ZIPCODE))
+#
+#boston4_for_bader2 <- boston4[complete.cases(boston4), ] %>%
+#  mutate(
+#    addr_key = paste(ST_NAME, POSTCODE)
+#  )
+#
+#bmatch_bad <- inner_join(x = bader2, y = boston4_for_bader2,
+#                     by = "addr_key")
 # ungrouping
-pid_expand_not_complete <- bmatch_bad %>%
-  rowwise() %>%
-  mutate(
-    pide = strsplit(PID_CONCAT, ",")[1]
-  ) %>%
-  unnest(pide)
+#pid_expand_not_complete <- bmatch_bad %>%
+#  rowwise() %>%
+#  mutate(
+#    pide = strsplit(PID_CONCAT, ",")[1]
+#  ) %>%
+#  unnest(pide)
+#
+#length(intersect(pid_expand_not_complete$pide, bad_addr$PID))/
+#  length(unique(bad_addr$PID))
 
-length(intersect(pid_expand_not_complete$pide, bad_addr$PID))/
-  length(unique(bad_addr$PID))
+
+# select only columns that matter to us
+fixed_data <- pid_expand %>% ungroup() %>%
+  select(pide, LAT, LON) %>% rename(PID = pide) 
+
+# export
+write_csv(fixed_data, "./data/fixed_loc.csv")
