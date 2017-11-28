@@ -58,38 +58,7 @@ ui <- dashboardPage(
       actionLink("remove", "Remove detail tabs")
     )
   ),
-  dashboardBody(      
-    tabsetPanel(id = "tabs",
-                tabPanel(
-                  title = "Main Dashboard",
-                  value = "page1",
-                  fluidRow(
-                    valueBoxOutput("total_flights"),
-                    valueBoxOutput("per_day"),
-                    valueBoxOutput("percent_delayed")
-                  ),
-                  fluidRow(
-                    
-                    
-                  ),
-                  fluidRow(
-                    column(width = 7,
-                           p(textOutput("monthly")),
-                           highchartOutput("group_totals")),
-                    column(width = 5,
-                           p(paste("Click on an airport in the plot to",
-                                   "see the details")),
-                           highchartOutput("top_airports"))
-                  )
-                ),
-                tabPanel(
-                    title = "Map Dashboard",
-                    value = "page2",
-                    leafletOutput("mymap"),
-                    p(),
-                    actionButton("recalc", "New points")
-                ))
-  )
+  dashboardBody( leafletOutput("mymap", height = 600 ))
 )
 
 
