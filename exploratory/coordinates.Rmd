@@ -1,0 +1,292 @@
+---
+title: "Coordinates Assessment"
+author: Tyler Brown
+date: 2017-11-28
+output:
+  pdf_document:
+    highlight: zenburn
+---
+```{r, include = FALSE}
+library(dplyr)
+library(knitr)
+library(readr)
+```
+
+```{r, include = FALSE}
+# Data in question
+fixed_loc <- read_csv("../data/fixed_loc.csv")
+combined <- read_csv("../data/Combined_data.csv")
+```
+
+We need to verify that imputed coordinates are making sense. We start
+with the "combined" data which includes mostly unique `pid-year`
+combinations.
+
+Description of Datasets and Imputations
+---------------------------------------
+
+```{r, echo = FALSE}
+kable(tibble( row_count = nrow(combined),
+             col_count = ncol(combined)),
+      caption = "'Combined' dataset dimensions")
+```
+
+Given these dimensions, the `Latitude` and `Longitude` columns are
+both filled out about `65%` of the time.
+
+```{r, echo = FALSE}
+td <- table(complete.cases(combined %>% select( Latitude, Longitude )))
+per <- round(td['FALSE'] / (td['TRUE'] + td['FALSE']), 4) * 100
+
+kable(tibble( complete = td['TRUE'],
+             incomplete = td['FALSE'],
+             percent_incomplete = per,
+             total = td['TRUE'] + td['FALSE']),
+      caption = "Coordinate Pair Completion Rate")
+```
+
+```{r, echo = FALSE}
+
+unique_coordinates <- combined %>% filter(
+                                !complete.cases(combined %>%
+                                select( Latitude, Longitude ))
+                                )
+#dim(unique_coordinates)
+
+uc_pid_grp <- unique_coordinates %>%
+    group_by(PID) %>%
+    count()
+
+kable(tibble( incomplete = nrow(unique_coordinates),
+             PID = nrow(uc_pid_grp) ),
+      caption = "Count of unique PID with Incomplete Coordinate Pairs")
+```
+
+
+The second file, `fixed_loc.csv`, includes imputed values for the missing
+coordinate pairs. We imputed coordinates from [openaddresses.io](https://openaddresses.io/) for the missing data. The number of imputed values
+do not account for all of the incomplete cases.
+
+```{r, echo = FALSE}
+table3_PID <- nrow(uc_pid_grp)
+row_count <- nrow(fixed_loc)
+percent_imputed <- round(row_count/table3_PID, 4) * 100
+
+kable(tibble(table3_PID = table3_PID,
+             fixed_loc_row_count = row_count,
+             percent_imputed = percent_imputed),
+      caption = "Percent Imputed by `Fixed Locations`")
+```
+
+Quality of Imputed Coordinates
+------------------------------
+
+Let's take a closer look at `fixed_loc.csv` to see if coordinate
+pairs were successfully imputed.
+
+```{r, echo = FALSE}
+f1 <- fixed_loc %>%
+    group_by(PID) %>%
+    count() %>%
+    arrange(desc(n))
+
+per_pid <- round(nrow(f1) / nrow(fixed_loc), 4) * 100
+
+kable(tibble(row_count = nrow(fixed_loc),
+             unique_PID = nrow(f1),
+             percent_unique_pid = per_pid),
+      caption = "Check: Is each row a unique PID?")
+```
+
+The number of unique `PID` values is almost double. This is most likely
+caused by a `one-to-many` join when a `one-to-one` join was intended.
+
+
+```{r, echo = FALSE}
+f2 <- fixed_loc %>%
+    group_by(PID, LAT, LON) %>%
+    count() %>%
+    group_by(n) %>%
+    summarize(
+        unique_row_count = n()
+    ) %>%
+    arrange(desc(unique_row_count))
+
+kable(as_tibble(head(f2, n = 10)),
+      caption = "Top 10 Multiple PID-Coordinate Combinations")
+
+summary(f2$n)
+```
+
+The `fixed_loc.csv` file clearly needs some work. This work will need
+to be done in a later version of the application. Let's try to put
+together a minimal version of `fixed_loc.csv` that may be usable for
+an initial imputation.
+
+We have multiple coordinate pairs matched to `PID` values. I'm going
+to group by `PID` and take the first match.
+
+```{r, echo = FALSE}
+first_match <- fixed_loc %>%
+    mutate(
+        coordinate_pair = paste(LAT, LON, sep=";")
+    ) %>%
+    group_by(PID) %>%
+    summarize(
+        cpair = first(coordinate_pair),
+        lat = strsplit(cpair, ";")[[1]][1],
+        lng = strsplit(cpair, ";")[[1]][2]
+    )
+
+kable(tibble(
+    first_match_rows = nrow(first_match),
+    table5_row_count = nrow(fixed_loc)),
+    caption = "Comparing First Group Row Count to Table 5")
+```
+
+Now that we have a file without duplicate `PID` values, let's see how
+unique imputed coordinates are compared to the `Combined` file.
+
+```{r, echo = FALSE}
+fmatch_agg <- first_match %>%
+    group_by(cpair) %>% count() %>%
+    group_by(n) %>%
+    summarize(
+        coordinate_pair_count = n()
+    ) %>%
+    arrange(desc(coordinate_pair_count))
+
+print("Quantiles of an Aggregate on the `first_match` table")
+quantile(fmatch_agg$coordinate_pair_count)
+```
+
+We can clearly see here that some `PID` values will share a coordinate
+pair. This is to be expected on some level because we ignored the unit
+number when matching coordinates. It wouldn't make sense for the unit
+number within a property to have a meaningfully different coordinate
+value.
+
+The last thing to do for this version is to go through and see if
+a coordinate pair with multiple `PID` values is substantively valid.
+
+```{r, echo = FALSE}
+cfirst <- combined %>%
+    rowwise() %>%
+    mutate(
+        st_address = paste(as.character(ST_NUM),
+                           as.character(ST_NAME),
+                           as.character(ST_NAME_SUF),
+                           #as.character(UNIT_NUM),
+                           as.character(ZIPCODE))
+    )
+
+cfirst_grp <- cfirst %>%
+    group_by(PID, st_address) %>%
+    count() %>%
+    ungroup()
+
+imputed_coords <- inner_join(x = cfirst_grp, y = first_match, by = "PID")
+
+
+kable(tibble(
+    unique_pid_addr_in_combined = nrow(cfirst_grp),
+    imputed_coord_count = nrow(imputed_coords)),
+    caption = "Number of unique addresses imputed.")
+```
+
+Now we need to see if the number of coordinates match up with the
+number of units for each address. A `PID` will correspond to each
+unit within a property.
+
+```{r, echo = FALSE}
+c1 <- imputed_coords %>%
+    group_by(st_address, cpair) %>%
+    count()
+
+c2 <- imputed_coords %>%
+    group_by(st_address) %>%
+    count()
+
+c3 <- imputed_coords %>%
+    group_by(cpair) %>%
+    count()
+
+kable(tibble(
+    st_address_cpair_rows = nrow(c1),
+    st_address_rows = nrow(c2),
+    cpair_rows = nrow(c3),
+    st_addr_cpair_to_cpair_ratio = nrow(c1)/nrow(c3)),
+    caption = "Granularity of Coordinates")
+```
+
+
+In the above table, it's clear to see that the granularity of imputed
+coordinates is an order of magnitude less than the granularity provided
+by each street address.
+
+
+Comparing Non-imputed Granularity of Coordinates
+-------------------------------------------------
+
+Let's see how granular non-imputed coordinates are for the city of
+Boston.
+
+```{r, echo = FALSE, warning = FALSE}
+
+cgiven <- cfirst[complete.cases(cfirst %>% select(Longitude, Latitude)),]
+cgiven <- cgiven %>%
+    rowwise() %>%
+    mutate(
+        cpair = paste(as.character(Longitude),
+                      as.character(Latitude), sep = ";")
+    )
+
+cgiven_grp <- cgiven %>%
+    group_by(PID, st_address, cpair) %>%
+    count() %>%
+    ungroup()
+
+cg1 <- cgiven %>%
+    group_by(st_address, cpair) %>%
+    count()
+
+cg2 <- cgiven %>%
+    group_by(st_address) %>%
+    count()
+
+cg3 <- cgiven %>%
+    group_by(cpair) %>%
+    count()
+
+kable(tibble(
+    st_address_cpair_rows = nrow(cg1),
+    st_address_rows = nrow(cg2),
+    cpair_rows = nrow(cg3),
+    st_addr_cpair_to_cpair_ratio = nrow(cg1)/nrow(cg3)),
+    caption = "Granularity of Non-Imputed Coordinates for Combined")
+```
+
+It appears that imputed coordinates are (`6.5:1`)considerably less 
+granular than the given coordinates (`4:1`).
+
+Summary
+-------
+
+* The initial `fixed_loc` file had some issues with multiple
+  coordinates being matched to a `PID` in several cases.
+* As a first version fix, I grouped on each `PID` within `fixed_loc`
+  and kept the first coordinate pair.
+* The ratio of `PID` address and coordinate pair over `PID`
+  coordinate pair is similar for the imputed and non-imputed
+  coordinates.
+
+
+To Do
+-----
+
+* Given the `6.5:1` for imputed and `4:1` for non-imputed ratio of street
+  addresses to unique coordinate pairs for both imputed and non-imputed 
+  values, we will probably need to reconsider our mapping strategy.
+* When I comment out `UNIT_NUM`, the ratios drop to `1.3:1` for
+  imputed and `3:1` for non-imputed. It seems as though the imputed
+  values may be more granular from this perspective.
