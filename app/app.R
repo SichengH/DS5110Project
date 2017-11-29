@@ -1,6 +1,7 @@
 library(shinydashboard)
 library(dplyr)
 library(dbplyr)
+library(geojsonio)
 library(leaflet)
 library(purrr)
 library(readr)
@@ -21,12 +22,16 @@ airline_list <- airlines %>%
   split(.$name) %>%
     map(~.$carrier)
 
+#combined <- read_csv("data/Combined_data.csv")
+states <- geojson_read("data/us-states.geojson", what="sp")
+#states <- geojson_read("data/us-boston.geojson", what="sp")
+
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Boston Properity Assessment Visualization",
+  dashboardHeader(title = "Boston Property Assessment Visualization",
                   titleWidth = 500),
   dashboardSidebar(width = 300,
     selectInput(
@@ -58,7 +63,11 @@ ui <- dashboardPage(
       actionLink("remove", "Remove detail tabs")
     )
   ),
-  dashboardBody( leafletOutput("mymap", height = 600 ))
+  dashboardBody(
+      
+
+
+      leafletOutput("mymap", height = 600 ))
 )
 
 
@@ -273,15 +282,44 @@ server <- function(input, output, session) {
     tab_list <<- NULL
   })
 
-    # maps tab
+
+    bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
+    pal <- colorBin("YlOrRd", domain = states$density, bins = bins)
+
+    labels <- sprintf(
+        "<strong>%s</strong><br/>%g people / mi<sup>2</sup>",
+        states$name, states$density
+    ) %>% lapply(htmltools::HTML)
+
+  # maps tab
   output$mymap <- renderLeaflet({
-    leaflet(data = airports) %>%
-      addProviderTiles(providers$Stamen.TonerLite,
-        options = providerTileOptions(noWrap = TRUE)
-      ) %>%
-        addMarkers(~lon, ~lat, popup = ~name, label = ~name,
-                   clusterOptions = markerClusterOptions(),
-                   clusterId = "quakesCluster")
+      leaflet(states) %>%
+          setView(-96, 37.8, 4) %>%
+          addProviderTiles("MapBox", options = providerTileOptions(
+                  id = "mapbox.light",
+                  accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+          addPolygons(
+              fillColor = ~pal(density),
+              weight = 2,
+              opacity = 1,
+              color = "white",
+              dashArray = "3",
+              fillOpacity = 0.7,
+              highlight = highlightOptions(
+                  weight = 5,
+                  color = "#666",
+                  dashArray = "",
+                  fillOpacity = 0.7,
+                  bringToFront = TRUE),
+              label = labels,
+              labelOptions = labelOptions(
+                  style = list("font-weight" = "normal",
+                               padding = "3px 8px"),
+                  textsize = "15px",
+                  direction = "auto")) %>%
+          addLegend(pal = pal, values = ~density, opacity = 0.7,
+                    title = NULL,
+                    position = "bottomright")
   })
   
 }
