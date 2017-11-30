@@ -24,7 +24,7 @@ airline_list <- airlines %>%
 
 #combined <- read_csv("data/Combined_data.csv")
 #states <- geojson_read("data/us-states.geojson", what="sp")
-states <- geojson_read("data/sumedh-boston.geojson", what="sp")
+boston <- geojson_read("data/sumedh-boston.geojson", what="sp")
 
 
 r_colors <- rgb(t(col2rgb(colors()) / 255))
@@ -285,17 +285,17 @@ server <- function(input, output, session) {
 
 
     bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
-    pal <- colorBin("YlOrRd", domain = states$density, bins = bins)
+    pal <- colorBin("YlOrRd", domain = boston$density, bins = bins)
 
     labels <- sprintf(
         "<strong>%s</strong><br/>%g random int / mi<sup>2</sup>",
-        states$group, states$density
+        boston$group, boston$density
     ) %>% lapply(htmltools::HTML)
 
   # maps tab
   # Reference: https://rstudio.github.io/leaflet/choropleths.html
   output$mymap <- renderLeaflet({
-      leaflet(states) %>%
+      leaflet(boston) %>%
       setView(-71.0589, 42.3, 11) %>%
       addProviderTiles("MapBox", options = providerTileOptions(
           id = "mapbox.light",
