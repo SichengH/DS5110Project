@@ -27,7 +27,6 @@ airline_list <- airlines %>%
 states <- geojson_read("data/sumedh-boston.geojson", what="sp")
 
 
-
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
 
