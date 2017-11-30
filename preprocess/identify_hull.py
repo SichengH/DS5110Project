@@ -1,4 +1,9 @@
-""" Need to create outer hulls for Polygon in GeoJson. """
+""" Need to create outer hulls for Polygon in GeoJson. 
+
+DO NOT USE. This was an experiment that didn't go well because of
+dirty data.
+"""
+print(__doc__)
 from collections import defaultdict
 import csv
 from random import randint, seed
@@ -39,8 +44,8 @@ def compute_convex_hull(zipcode, points):
     geo_points = matrix(points)
     hull = ConvexHull(geo_points)
     
-    lat = geo_points[hull.vertices,0]
-    lng = geo_points[hull.vertices,1]
+    lng = geo_points[hull.vertices,0]
+    lat = geo_points[hull.vertices,1]
     return (zipcode, lat, lng)
 
 

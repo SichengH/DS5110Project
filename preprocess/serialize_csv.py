@@ -1,4 +1,9 @@
-""" Encode data from CSV file into geojson """
+""" Encode data from CSV file into geojson 
+
+
+DO NOT USE. failed experiment
+"""
+print(__doc__)
 from preprocess.identify_hull import (geojson_feature_collection,
                                       write_geojson)
 
