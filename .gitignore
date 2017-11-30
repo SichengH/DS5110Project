@@ -1,7 +1,10 @@
 *~
 *.csv
+*.geojson
 *.aux
 *.log
 *.bbl
 *.blg
 *.Rhistory
+data
+__pycache__

@@ -1,6 +1,5 @@
 library(shinydashboard)
 library(dplyr)
-library(dbplyr)
 library(geojsonio)
 library(leaflet)
 library(purrr)
@@ -297,9 +296,7 @@ server <- function(input, output, session) {
   output$mymap <- renderLeaflet({
       leaflet(boston) %>%
       setView(-71.0589, 42.3, 11) %>%
-      addProviderTiles("MapBox", options = providerTileOptions(
-          id = "mapbox.light",
-          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+      addProviderTiles(providers$CartoDB.Positron) %>%
       addPolygons(
           fillColor = ~pal(density),
           weight = 2,
