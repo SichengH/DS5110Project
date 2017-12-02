@@ -9,23 +9,23 @@ problems, this is a good approach.
 # Building and running a Docker Container
 
 1. Install docker
-1. Build the docker container: `$ docker build -t tbonza/ds5110 .`
-1. Run the docker container: `$ docker run --rm -p 3838:80 tbonza/ds5110`
-1. You should see the app at `localhost:3838`
-1. Get your the process number of the docker container:
+2. Build the docker container: `$ docker build -t boston .`
+3. Run the docker container: `$ docker run --rm -p 3838:80 boston`
+4. You should see the app at `localhost:3838`
+5. Get your the process number of the docker container:
    `docker ps`
-1. Open a different terminal & connect to the Docker container:
+6. Open a different terminal & connect to the Docker container:
    `docker exec -it <mycontainer_process_id> bash`
 
 # Editing code with Shiny Server and Docker
 
 1. Connect to Docker container
-1. The code is located in `/srv/shiny-server/`
-1. Edit code with `vi` or preferably `emacs` because it's better.
-1. Save the `app.R` file and referesh, changes should flow through
-1. Clone this repo somewhere in the docker container and copy your
+2. The code is located in `/srv/shiny-server/`
+3. Edit code with `vim`, `emacs`, or `nano`.
+4. Save the `app.R` file and referesh, changes should flow through
+5. Clone this repo somewhere in the docker container and copy your
    changes to the appropriate place in this repo before committing.
-1. Make sure to reference the issue number in your commit (`see #7`).
+6. Make sure to reference the issue number in your commit (`see #7`).
 
 
 # DS5110Project
