@@ -81,6 +81,17 @@ uni<-function(list){
   }
 }
 
+uni_2<-function(list){
+  list<-as.character(list)
+  temp<-table(list)
+  name<-names(temp)
+  if(length(name)==1){
+    return(name)
+  } else {
+    name<-name[name!=""]
+    return(name[1])
+  }
+}
 remo<-function(list){
   temp<-unique(list)
   if(length(temp)==1){
@@ -109,6 +120,11 @@ dec <- function(x) {
   } else {
     return(0)
   }
+}
+
+summ<-function(list){
+  list<-as.numeric(as.character(list))
+  return(sum(list))
 }
 
 ID<-unique(data$PID)
@@ -188,15 +204,107 @@ data4<-rbind(data.temp,data.temp2)
 data4<-separate(data4,key = PID, into = c("PID","space"))
 data5<-inner_join(data4,data.value.wide)
 
+#make up a score
+data6<-data5[,c(1,14,15,16,17,18,19)]
+levels(data6$AC)<-c("1","3")
+levels(data6$VIEW)<-c("0","3","5","2","4","1","6")
+levels(data6$INT_FIN)<-c("0","3","2","1")
+levels(data6$INT_CND)<-c("0","3","5","2","1","4","1")
+levels(data6$KIT_STYLE)<-c("0","3","2","1")
+levels(data6$BTH_STYLE)<-c("0","3","2","1")
+data6$AC<-as.numeric(as.character(data6$AC))
+data6$BTH_STYLE<-as.numeric(as.character(data6$BTH_STYLE))
+data6$KIT_STYLE<-as.numeric(as.character(data6$KIT_STYLE))
+data6$INT_CND<-as.numeric(as.character(data6$INT_CND))
+data6$INT_FIN<-as.numeric(as.character(data6$INT_FIN))
+data6$VIEW<-as.numeric(as.character(data6$VIEW))
+data6<-data6%>%mutate(INT_SCORE = AC+BTH_STYLE+KIT_STYLE+INT_CND+INT_FIN+VIEW)
+data6<-data6%>%filter(BTH_STYLE>0)%>%filter(KIT_STYLE>0)%>%filter(VIEW>0)%>%filter(INT_CND>0)%>%filter(INT_FIN>0)
+data6<-data6[,c(1,8)]
 
 
-full.address<-unique(data$full_address)
-for(i in 1:length(full.address)){
-  t.data<-data%>%filter(full_address==full.address[i])
+data7<-left_join(data5,data6)
+
+
+full.address<-table(data7$full_address)
+full.address.apt<-full.address[full.address>1]
+full.address.else<-full.address[full.address==1]
+
+names.apt<-names(full.address.apt)
+len<-length(full.address.apt)
+
+PID<-rep(NA,len)
+full_address<-rep(NA,len)
+Latitude<-rep(NA,len)
+Longitude<-rep(NA,len)
+YR_BUILT<-rep(NA,len)
+YR_REMOD<-rep(NA,len)
+YR_REMOD2<-rep(NA,len)#
+LIVING_AREA<-rep(NA,len)
+NUM_FLOORS<-rep(NA,len)
+STRUCTURE_CLASS<-rep(NA,len)
+BDRMS<-rep(NA,len)
+BATHS<-rep(NA,len)
+HEAT<-rep(NA,len)
+AC<-rep(NA,len)
+BTH_STYLE<-rep(NA,len)
+KIT_STYLE<-rep(NA,len)
+INT_CND<-rep(NA,len)
+INT_FIN<-rep(NA,len)
+INT_SCORE<-rep(NA,len)
+APT<-rep(NA,len)
+VIEW<-rep(NA,len)
+`2014`<-rep(NA,len)
+`2015`<-rep(NA,len)
+`2016`<-rep(NA,len)
+`2017`<-rep(NA,len)
+ZIPCODE<-rep(NA,len)
+for(i in 1:len){
+  t.data<-data7%>%filter(full_address==names.apt[i])
+  tryCatch({
+    PID[i]<-uni(t.data$PID)
+    full_address[i]<-uni_2(t.data$full_address)
+    Latitude[i]<-uni(t.data$Latitude)
+    Longitude[i]<-uni(t.data$Longitude)
+    YR_BUILT[i]<-uni(t.data$YR_BUILT)
+    YR_REMOD[i]<-uni(t.data$YR_REMOD)
+    YR_REMOD2[i]<-uni(t.data$YR_REMOD)
+    LIVING_AREA[i]<-summ(t.data$LIVING_AREA)
+    NUM_FLOORS[i]<-uni_2(t.data$NUM_FLOORS)
+    STRUCTURE_CLASS[i]<-uni_2(t.data$STRUCTURE_CLASS)
+    BDRMS[i]<-summ(t.data$BDRMS)/nrow(t.data)
+    BATHS[i]<-summ(t.data$BATHS)/nrow(t.data)
+    HEAT[i]<-uni_2(t.data$HEAT)
+    AC[i]<-uni_2(t.data$AC)
+    BTH_STYLE[i]<-uni_2(t.data$BTH_STYLE)
+    KIT_STYLE[i]<-uni_2(t.data$KIT_STYLE)
+    INT_CND[i]<-uni_2(t.data$INT_CND)
+    INT_FIN[i]<-uni_2(t.data$INT_FIN)
+    VIEW[i]<-uni_2(t.data$VIEW)
+    INT_SCORE[i]<-summ(t.data$INT_SCORE)/nrow(t.data)
+    ZIPCODE[i]<-uni(t.data$ZIPCODE)
+    `2014`[i]<-sum(t.data$`2014`)
+    `2015`[i]<-sum(t.data$`2015`)
+    `2016`[i]<-sum(t.data$`2016`)
+    `2017`[i]<-sum(t.data$`2017`)
+    APT[i]<-"Yes"
+    
+  },error=function(e){})
   
 }
+data8<-data.frame(PID,YR_BUILT,full_address,Latitude,Longitude,YR_REMOD,YR_REMOD2,LIVING_AREA,NUM_FLOORS,STRUCTURE_CLASS,
+                  BDRMS,BATHS,HEAT,AC,BTH_STYLE,KIT_STYLE,INT_CND,INT_FIN,VIEW,ZIPCODE,`2014`,`2015`,`2016`,`2017`,INT_SCORE,APT,stringsAsFactors=FALSE)
+
+data9<-data7%>%filter(full_address %in% names(full.address.else))
+data9$APT<-"No"
+
+data8<-na.omit(data8)
+colnames(data9)<-c("PID","YR_BUILT","full_address","Latitude","Longitude","YR_REMOD","YR_REMOD2","LIVING_AREA","NUM_FLOORS","STRUCTURE_CLASS","BDRMS","BATHS","HEAT","AC","BTH_STYLE","KIT_STYLE","INT_CND","INT_FIN","VIEW","ZIPCODE","X2014","X2015","X2016","X2017","INT_SCORE","APT")
+data10<-rbind(data8,data9)
+
 #saveing dir
 setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/data/")
+
 
 
 
