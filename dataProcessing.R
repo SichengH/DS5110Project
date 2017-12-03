@@ -156,6 +156,11 @@ data3<-data.frame(PID,full_address,Latitude,Longitude,YR_BUILT,YR_REMOD,YR_REMOD
                   BDRMS,BATHS,HEAT,AC,BTH_STYLE,KIT_STYLE,INT_CND,INT_FIN,VIEW)
 
 
+data4<-na.omit(data3)
+data4<-separate(data4,key = PID, into = c("PID","space"))
+data5<-left_join(data3)
+
+
 
 full.address<-unique(data$full_address)
 for(i in 1:length(full.address)){
