@@ -5,7 +5,7 @@ library(readr)
 library(stringr)
 
 
-houses <- read_csv("../data/Combined_data.csv")
+houses <- read_csv("./data/Combined_data.csv")
 
 
 addr <- houses %>%
