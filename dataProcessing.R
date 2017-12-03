@@ -54,7 +54,9 @@ data2<-aggregate(Longitude~key,data2,mean)
 data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
 data.longitude.wide<-spread(data2,key = Year,value = Longitude)
 
-remodel.data<-data%>%filter(YR_REMOD >2014)
+data3<-unite(data3,"key",PID,Year,sep = "")
+data3<-separate(data3, key, into = c("PID", "Year"), sep = "_")
+
 uni_1<-function(list){
   temp<-unique(list)
   if(is.na(temp[1])&length(temp)==1){
@@ -128,7 +130,7 @@ for(i in 1:len){
   if(nrow(t.data)<4){
     next
   }
-  PID<-ID[i]
+  PID[i]<-ID[i]
   full_address[i]<-uni(t.data$full_address)
   Latitude[i]<-uni(t.data$Latitude)
   Longitude[i]<-uni(t.data$Longitude)
@@ -156,9 +158,23 @@ data3<-data.frame(PID,full_address,Latitude,Longitude,YR_BUILT,YR_REMOD,YR_REMOD
                   BDRMS,BATHS,HEAT,AC,BTH_STYLE,KIT_STYLE,INT_CND,INT_FIN,VIEW)
 
 
+
+data3<-unite(data3,"key",PID,YR_BUILT,sep = "")
+data3<-separate(data3, key, into = c("PID", "YR_BUILT"), sep = "_")
 data4<-na.omit(data3)
+data4$Longitude<-as.numeric(as.character(data4$Longitude))
+data4$Latitude<-as.numeric(as.character(data4$Latitude))
+
+
+
+#lat and long
+data.temp<-data4%>%filter(Latitude==42.30825,Longitude==-71.0492)
+data.temp2<-data4%>%filter(Latitude!=42.30825,Longitude!=-71.0492)
+data.temp$Latitude<-0
+data.temp$Longitude<-0
+data4<-rbind(data.temp,data.temp2)
 data4<-separate(data4,key = PID, into = c("PID","space"))
-data5<-left_join(data3)
+data5<-inner_join(data4,data.value.wide)
 
 
 
@@ -167,6 +183,8 @@ for(i in 1:length(full.address)){
   t.data<-data%>%filter(full_address==full.address[i])
   
 }
+
+setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/data/")
 
 #and then doing unique feature 
 #the same time with value
