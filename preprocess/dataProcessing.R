@@ -1,8 +1,12 @@
 library(data.table)
-#setwd("/Users/haosicheng/Desktop/5110ProjectData")
+setwd("/Users/haosicheng/Desktop/5110ProjectData")
+loc<-fread("fixed_loc.csv")
+loc$New<-"1"
+loc<-unite(loc,"key",PID,New,sep = "")
+loc<-separate(loc, key, into = c("PID", "New"), sep = "_")
+loc<-loc[,-2]
 
-
-data<-fread("data/Combined_data.csv")
+data<-fread("Combined_data.csv")
 
 
 ###################column clean##################
@@ -99,6 +103,14 @@ remo2<-function(list){
   }
 }
 
+dec <- function(x) {
+  if ((x %% 1) != 0) {
+    nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed=TRUE)[[1]][[2]])
+  } else {
+    return(0)
+  }
+}
+
 ID<-unique(data$PID)
 len<-length(ID)
 PID<-rep(NA,len)
@@ -131,25 +143,25 @@ for(i in 1:len){
     next
   }
   PID[i]<-ID[i]
-  full_address[i]<-uni(t.data$full_address)
+  # full_address[i]<-uni(t.data$full_address)
   Latitude[i]<-uni(t.data$Latitude)
   Longitude[i]<-uni(t.data$Longitude)
-  YR_BUILT[i]<-uni(t.data$YR_BUILT)
-  YR_REMOD[i]<-remo(t.data$YR_REMOD)
-  YR_REMOD2[i]<-remo2(t.data$YR_REMOD)
-  LIVING_AREA[i]<-uni(t.data$LIVING_AREA)
-  NUM_FLOORS[i]<-uni(t.data$NUM_FLOORS)
-  STRUCTURE_CLASS[i]<-uni(t.data$STRUCTURE_CLASS)
-  BDRMS[i]<-sum(as.numeric(uni(t.data$R_BDRMS)),as.numeric(uni(t.data$U_BDRMS)),na.rm = TRUE)
-  BATHS[i]<-sum(as.numeric(uni(t.data$R_FULL_BTH)),as.numeric(uni(t.data$R_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),na.rm = TRUE)
-  HEAT[i]<-uni(c(t.data$U_HEAT_TYP,t.data$R_HEAT_TYP))
-  AC[i]<-uni(c(t.data$U_AC,t.data$R_AC))
-  BTH_STYLE[i]<-uni(c(t.data$U_BTH_STYLE,t.data$R_BTH_STYLE))
-  KIT_STYLE[i]<-uni(c(t.data$U_KITCH_STYLE,t.data$R_KITCH_STYLE))
-  INT_CND[i]<-uni(c(t.data$U_INT_CND,t.data$R_INT_CND))
-  INT_FIN[i]<-uni(c(t.data$U_INT_FIN,t.data$R_INT_FIN))
-  VIEW[i]<-uni(c(t.data$U_VIEW,t.data$R_VIEW))
-  }, error=function(e){})
+  # YR_BUILT[i]<-uni(t.data$YR_BUILT)
+  # YR_REMOD[i]<-remo(t.data$YR_REMOD)
+  # YR_REMOD2[i]<-remo2(t.data$YR_REMOD)
+  # LIVING_AREA[i]<-uni(t.data$LIVING_AREA)
+  # NUM_FLOORS[i]<-uni(t.data$NUM_FLOORS)
+  # STRUCTURE_CLASS[i]<-uni(t.data$STRUCTURE_CLASS)
+  # BDRMS[i]<-sum(as.numeric(uni(t.data$R_BDRMS)),as.numeric(uni(t.data$U_BDRMS)),na.rm = TRUE)
+  # BATHS[i]<-sum(as.numeric(uni(t.data$R_FULL_BTH)),as.numeric(uni(t.data$R_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),na.rm = TRUE)
+  # HEAT[i]<-uni(c(t.data$U_HEAT_TYP,t.data$R_HEAT_TYP))
+  # AC[i]<-uni(c(t.data$U_AC,t.data$R_AC))
+  # BTH_STYLE[i]<-uni(c(t.data$U_BTH_STYLE,t.data$R_BTH_STYLE))
+  # KIT_STYLE[i]<-uni(c(t.data$U_KITCH_STYLE,t.data$R_KITCH_STYLE))
+  # INT_CND[i]<-uni(c(t.data$U_INT_CND,t.data$R_INT_CND))
+  # INT_FIN[i]<-uni(c(t.data$U_INT_FIN,t.data$R_INT_FIN))
+  # VIEW[i]<-uni(c(t.data$U_VIEW,t.data$R_VIEW))
+   }, error=function(e){})
     
   
 }
@@ -158,12 +170,12 @@ data3<-data.frame(PID,full_address,Latitude,Longitude,YR_BUILT,YR_REMOD,YR_REMOD
                   BDRMS,BATHS,HEAT,AC,BTH_STYLE,KIT_STYLE,INT_CND,INT_FIN,VIEW)
 
 
-
-data3<-unite(data3,"key",PID,YR_BUILT,sep = "")
-data3<-separate(data3, key, into = c("PID", "YR_BUILT"), sep = "_")
 data4<-na.omit(data3)
+data4<-unite(data4,"key",PID,YR_BUILT,sep = "")
+data4<-separate(data4, key, into = c("PID", "YR_BUILT"), sep = "_")
 data4$Longitude<-as.numeric(as.character(data4$Longitude))
 data4$Latitude<-as.numeric(as.character(data4$Latitude))
+
 
 
 
@@ -183,11 +195,10 @@ for(i in 1:length(full.address)){
   t.data<-data%>%filter(full_address==full.address[i])
   
 }
-
+#saveing dir
 setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/data/")
 
-#and then doing unique feature 
-#the same time with value
+
 
 
 
