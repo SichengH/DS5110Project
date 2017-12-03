@@ -24,7 +24,7 @@ airline_list <- airlines %>%
 #combined <- read_csv("data/Combined_data.csv")
 #states <- geojson_read("data/us-states.geojson", what="sp")
 boston <- geojson_read("data/sumedh-boston.geojson", what="sp")
-
+sample <- read_csv("data/fixed_loc.csv") %>% group_by(LAT, LON) %>% count()
 
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
@@ -320,7 +320,17 @@ server <- function(input, output, session) {
           addLegend(pal = pal, values = ~density, opacity = 0.7,
                     title = NULL,
                     position = "bottomright") %>%
-          addMarkers(lng=-71.05, lat=42.3, group = "marker")
+      addPolygons(weight = 2,
+                  opacity = 1,
+                  stroke = TRUE,
+                  color = "orange",
+                  dashArray = "3",
+                  fillOpacity = 0.0,
+                  group = "marker") %>%
+      addMarkers(data = sample[sample(nrow(sample)), ][1:70000, ], 
+                 clusterOptions = markerClusterOptions(),
+                 group = "marker" )
+                     
   })
   
   zoom <- reactive({ input$mymap_zoom })
