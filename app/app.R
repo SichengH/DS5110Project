@@ -11,11 +11,15 @@ library(htmltools)
 
 # read geojson file, used to plot ploygons for zipcodes
 <<<<<<< HEAD
+<<<<<<< HEAD
 setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/data")
 boston <- geojson_read("sumedh-boston.geojson", what="sp")
 =======
 boston <- geojson_read("data/zillow-conversion-boston.geojson", what="sp")
 >>>>>>> 3c4ce582c906fb4d78e90d3d663f25a1bf250995
+=======
+boston <- geojson_read("data/zillow-conversion-boston.geojson", what="sp")
+>>>>>>> 7d3b6d87153a39edc24fa7a159f8599d8a6b4827
 
 # sample data for markers
 load("sample.rda")
