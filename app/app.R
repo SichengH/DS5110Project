@@ -61,7 +61,8 @@ ui <- dashboardPage(
         selected =  "All Year", 
         selectize = FALSE),
       actionLink("remove", "Remove detail tabs")
-    )
+    ),
+    textOutput("txt")
   ),
   dashboardBody(
       
@@ -304,6 +305,7 @@ server <- function(input, output, session) {
           color = "white",
           dashArray = "3",
           fillOpacity = 0.7,
+          group = "poly",
           highlight = highlightOptions(
               weight = 5,
               color = "#666",
@@ -317,7 +319,25 @@ server <- function(input, output, session) {
               direction = "auto")) %>%
           addLegend(pal = pal, values = ~density, opacity = 0.7,
                     title = NULL,
-                    position = "bottomright")
+                    position = "bottomright") %>%
+          addMarkers(lng=-71.05, lat=42.3, group = "marker")
+  })
+  
+  zoom <- reactive({ input$mymap_zoom })
+
+  observe({
+      req(zoom())
+      # leafletProxy("mymap") %>% 
+      #    clearShapes() 
+      if (zoom() < 12) {
+          leafletProxy("mymap") %>% hideGroup("marker") %>% 
+              showGroup("poly")
+      } else {
+          leafletProxy("mymap") %>% 
+              showGroup("marker") %>%
+              hideGroup("poly")
+      }
+      output$txt <- renderText({ zoom() })
   })
   
 }
