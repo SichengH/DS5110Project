@@ -10,10 +10,16 @@ library(DT)
 library(htmltools)
 
 # read geojson file, used to plot ploygons for zipcodes
-boston <- geojson_read("data/sumedh-boston.geojson", what="sp")
+<<<<<<< HEAD
+setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/data")
+boston <- geojson_read("sumedh-boston.geojson", what="sp")
+=======
+boston <- geojson_read("data/zillow-conversion-boston.geojson", what="sp")
+>>>>>>> 3c4ce582c906fb4d78e90d3d663f25a1bf250995
 
 # sample data for markers
-sample <- read_csv("data/fixed_loc.csv") %>% group_by(LAT, LON) %>% count()
+load("sample.rda")
+sample <- sample%>% group_by(LAT, LON) %>% count()
 
 ui <- dashboardPage(
   dashboardHeader(title = "Boston Property Assessment Visualization",
@@ -33,7 +39,7 @@ server <- function(input, output, session) {
   
   labels <- sprintf(
     "<strong>%s</strong><br/>%g random int / mi<sup>2</sup>",
-    boston$group, boston$density
+    boston$neighborhood, boston$density
   ) %>% lapply(htmltools::HTML)
   
   # maps tab
@@ -41,51 +47,48 @@ server <- function(input, output, session) {
   output$boston_map <- renderLeaflet({
     leaflet(boston) %>%
       setView(-71.0589, 42.3, 11) %>%
-      addProviderTiles(providers$CartoDB.Positron) %>%
-      
-      # polygon group, draws borders for zipcode
-      #   also shades zipcode by density
-      # Use as upper layer, for zoom < 12
-      addPolygons(
-        fillColor = ~pal(density),
-        weight = 2,
-        opacity = 1,
-        color = "white",
-        dashArray = "3",
-        fillOpacity = 0.5,
-        group = "polygon",
-        highlight = highlightOptions(
-          weight = 5,
-          color = "#666",
-          dashArray = "",
-          fillOpacity = 1,
-          bringToFront = TRUE),
-        label = labels,
-        labelOptions = labelOptions(
-          style = list("font-weight" = "normal", padding = "3px 8px"),
-          textsize = "15px",
-          direction = "auto")) %>%
-      
+        addProviderTiles(providers$CartoDB.Positron) %>%
+        addPolygons(
+            fillColor = ~pal(density),
+            weight = 2,
+            opacity = 1,
+            color = "white",
+            dashArray = "3",
+            fillOpacity = 0.5,
+            group = "polygon",
+            highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                dashArray = "",
+                fillOpacity = 1,
+                bringToFront = TRUE),
+            label = labels,
+            labelOptions = labelOptions(
+                style = list("font-weight" = "normal",
+                             padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+
       # NOTE!!
       # legend cant be added to any group, causes error
-      # possible workaround here: https://github.com/rstudio/leaflet/issues/215
-      addLegend(pal = pal, values = ~density, opacity = 0.7,
-                title = NULL,
-                position = "bottomright") %>%
-      
-      # markers group, shows borders for zipcode
-      #   but does not shade. Displays marker cluster on map
-      # Use as lower layer, for zoom >= 12
-      addPolygons(weight = 2,
-                  stroke = TRUE,
-                  color = "orange",
-                  dashArray = "5",
-                  fillOpacity = 0.0,
-                  group = "markers") %>%
-      addMarkers(data = sample[sample(nrow(sample)), ][1:70000, ], 
-                 clusterOptions = markerClusterOptions(),
-                 group = "markers" )
-    
+      # possible workaround here: 
+      #    https://github.com/rstudio/leaflet/issues/215
+    addLegend(pal = pal, values = ~density, opacity = 0.7,
+              title = NULL,
+              position = "bottomright") %>%
+
+     # markers group, shows borders for zipcode
+     #   but does not shade. Displays marker cluster on map
+     # Use as lower layer, for zoom >= 12
+    addPolygons(weight = 2,
+                stroke = TRUE,
+                color = "orange",
+                dashArray = "5",
+                fillOpacity = 0.0,
+                group = "markers") %>%
+    addMarkers(data = sample[sample(nrow(sample)), ][1:70000, ], 
+               clusterOptions = markerClusterOptions(),
+               group = "markers" )
   })
   
   # create reactive zoom function
