@@ -1,8 +1,8 @@
 library(data.table)
-setwd("/Users/haosicheng/Desktop/5110ProjectData")
+#setwd("/Users/haosicheng/Desktop/5110ProjectData")
 
 
-data<-fread("Combined_data.csv")
+data<-fread("data/Combined_data.csv")
 
 
 ###################column clean##################

@@ -31,13 +31,13 @@ RUN wget --no-verbose https://s3.amazonaws.com/rstudio-shiny-server-os-build/ubu
 
 RUN R -e "install.packages(c('shiny', 'rmarkdown', 'shinydashboard','dplyr', 'geojsonio', 'leaflet','purrr','readr','highcharter','DT','htmltools','nycflights13'), repos='http://cran.rstudio.com/')"
 
-COPY shiny-server.conf  /etc/shiny-server/shiny-server.conf
+COPY docker/shiny-server.conf  /etc/shiny-server/shiny-server.conf
 COPY /app /srv/shiny-server/
 CMD mkdir /srv/shiny-server/data/
 COPY /data /srv/shiny-server/data/
 
 EXPOSE 80
 
-COPY shiny-server.sh /usr/bin/shiny-server.sh
+COPY docker/shiny-server.sh /usr/bin/shiny-server.sh
 
 CMD ["/usr/bin/shiny-server.sh"]
