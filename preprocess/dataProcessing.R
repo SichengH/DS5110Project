@@ -41,25 +41,25 @@ data1<-aggregate(AV_TOTAL~key,data1,mean)
 data1<-separate(data1, key, into = c("PID", "Year","ZIPCODE"), sep = "_")
 data.value.wide<-spread(data1,key = Year,value = AV_TOTAL)
 #R_TOTAL_RMS
-data2<-unite(data,"key",PID,Year,sep = "")
-data2<-aggregate(R_TOTAL_RMS~key,data2,mean)
-data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
-data.totalRooms.wide<-spread(data2,key = Year,value = R_TOTAL_RMS)
-
-#Latitude
-data2<-unite(data,"key",PID,Year,sep = "")
-data2<-aggregate(Latitude~key,data2,mean)
-data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
-data.latitude.wide<-spread(data2,key = Year,value = Latitude)
+# data2<-unite(data,"key",PID,Year,sep = "")
+# data2<-aggregate(R_TOTAL_RMS~key,data2,mean)
+# data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
+# data.totalRooms.wide<-spread(data2,key = Year,value = R_TOTAL_RMS)
+# 
+# #Latitude
+# data2<-unite(data,"key",PID,Year,sep = "")
+# data2<-aggregate(Latitude~key,data2,mean)
+# data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
+# data.latitude.wide<-spread(data2,key = Year,value = Latitude)
 
 #Longitude
-data2<-unite(data,"key",PID,Year,sep = "")
-data2<-aggregate(Longitude~key,data2,mean)
-data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
-data.longitude.wide<-spread(data2,key = Year,value = Longitude)
-
-data3<-unite(data3,"key",PID,Year,sep = "")
-data3<-separate(data3, key, into = c("PID", "Year"), sep = "_")
+# data2<-unite(data,"key",PID,Year,sep = "")
+# data2<-aggregate(Longitude~key,data2,mean)
+# data2<-separate(data2, key, into = c("PID", "Year"), sep = "_")
+# data.longitude.wide<-spread(data2,key = Year,value = Longitude)
+# 
+# data3<-unite(data3,"key",PID,Year,sep = "")
+# data3<-separate(data3, key, into = c("PID", "Year"), sep = "_")
 
 uni_1<-function(list){
   temp<-unique(list)
@@ -113,7 +113,12 @@ remo2<-function(list){
     return(temp[2])
   }
 }
-
+max.precision<-function(list){
+  list<-table(list)
+  names<-names(list)
+  return(names[which(nchar(names)==max(nchar(names)))])
+  
+}
 dec <- function(x) {
   if ((x %% 1) != 0) {
     nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed=TRUE)[[1]][[2]])
@@ -159,24 +164,24 @@ for(i in 1:len){
     next
   }
   PID[i]<-ID[i]
-  # full_address[i]<-uni(t.data$full_address)
+  full_address[i]<-uni(t.data$full_address)
   Latitude[i]<-uni(t.data$Latitude)
   Longitude[i]<-uni(t.data$Longitude)
-  # YR_BUILT[i]<-uni(t.data$YR_BUILT)
-  # YR_REMOD[i]<-remo(t.data$YR_REMOD)
-  # YR_REMOD2[i]<-remo2(t.data$YR_REMOD)
-  # LIVING_AREA[i]<-uni(t.data$LIVING_AREA)
-  # NUM_FLOORS[i]<-uni(t.data$NUM_FLOORS)
-  # STRUCTURE_CLASS[i]<-uni(t.data$STRUCTURE_CLASS)
-  # BDRMS[i]<-sum(as.numeric(uni(t.data$R_BDRMS)),as.numeric(uni(t.data$U_BDRMS)),na.rm = TRUE)
-  # BATHS[i]<-sum(as.numeric(uni(t.data$R_FULL_BTH)),as.numeric(uni(t.data$R_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),na.rm = TRUE)
-  # HEAT[i]<-uni(c(t.data$U_HEAT_TYP,t.data$R_HEAT_TYP))
-  # AC[i]<-uni(c(t.data$U_AC,t.data$R_AC))
-  # BTH_STYLE[i]<-uni(c(t.data$U_BTH_STYLE,t.data$R_BTH_STYLE))
-  # KIT_STYLE[i]<-uni(c(t.data$U_KITCH_STYLE,t.data$R_KITCH_STYLE))
-  # INT_CND[i]<-uni(c(t.data$U_INT_CND,t.data$R_INT_CND))
-  # INT_FIN[i]<-uni(c(t.data$U_INT_FIN,t.data$R_INT_FIN))
-  # VIEW[i]<-uni(c(t.data$U_VIEW,t.data$R_VIEW))
+  YR_BUILT[i]<-uni(t.data$YR_BUILT)
+  YR_REMOD[i]<-remo(t.data$YR_REMOD)
+  YR_REMOD2[i]<-remo2(t.data$YR_REMOD)
+  LIVING_AREA[i]<-uni(t.data$LIVING_AREA)
+  NUM_FLOORS[i]<-uni(t.data$NUM_FLOORS)
+  STRUCTURE_CLASS[i]<-uni(t.data$STRUCTURE_CLASS)
+  BDRMS[i]<-sum(as.numeric(uni(t.data$R_BDRMS)),as.numeric(uni(t.data$U_BDRMS)),na.rm = TRUE)
+  BATHS[i]<-sum(as.numeric(uni(t.data$R_FULL_BTH)),as.numeric(uni(t.data$R_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),as.numeric(uni(t.data$U_HALF_BTH)),na.rm = TRUE)
+  HEAT[i]<-uni(c(t.data$U_HEAT_TYP,t.data$R_HEAT_TYP))
+  AC[i]<-uni(c(t.data$U_AC,t.data$R_AC))
+  BTH_STYLE[i]<-uni(c(t.data$U_BTH_STYLE,t.data$R_BTH_STYLE))
+  KIT_STYLE[i]<-uni(c(t.data$U_KITCH_STYLE,t.data$R_KITCH_STYLE))
+  INT_CND[i]<-uni(c(t.data$U_INT_CND,t.data$R_INT_CND))
+  INT_FIN[i]<-uni(c(t.data$U_INT_FIN,t.data$R_INT_FIN))
+  VIEW[i]<-uni(c(t.data$U_VIEW,t.data$R_VIEW))
    }, error=function(e){})
     
   
@@ -195,14 +200,14 @@ data4$Latitude<-as.numeric(as.character(data4$Latitude))
 
 
 
-#lat and long
-data.temp<-data4%>%filter(Latitude==42.30825,Longitude==-71.0492)
-data.temp2<-data4%>%filter(Latitude!=42.30825,Longitude!=-71.0492)
-data.temp$Latitude<-0
-data.temp$Longitude<-0
-data4<-rbind(data.temp,data.temp2)
-data4<-separate(data4,key = PID, into = c("PID","space"))
-data5<-inner_join(data4,data.value.wide)
+# #lat and long
+# data.temp<-data4%>%filter(Latitude==42.30825,Longitude==-71.0492)
+# data.temp2<-data4%>%filter(Latitude!=42.30825,Longitude!=-71.0492)
+# data.temp$Latitude<-0
+# data.temp$Longitude<-0
+# data4<-rbind(data.temp,data.temp2)
+# data4<-separate(data4,key = PID, into = c("PID","space"))
+# data5<-inner_join(data4,data.value.wide)
 
 #make up a score
 data6<-data5[,c(1,14,15,16,17,18,19)]
