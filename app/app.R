@@ -13,7 +13,8 @@ library(htmltools)
 boston <- geojson_read("data/zillow-conversion-boston.geojson", what="sp")
 
 # sample data for markers
-sample <- read_csv("data/fixed_loc.csv") %>% group_by(LAT, LON) %>% count()
+sample <- read_csv("data/fixed_loc.csv") %>% group_by(LAT, LON) %>%
+    count()
 
 ui <- dashboardPage(
   dashboardHeader(title = "Boston Property Assessment Visualization",
