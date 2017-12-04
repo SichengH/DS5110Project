@@ -1,4 +1,5 @@
 library(shinydashboard)
+
 library(dplyr)
 library(geojsonio)
 library(leaflet)
@@ -8,13 +9,24 @@ library(shiny)
 library(highcharter)
 library(DT)
 library(htmltools)
+wd<-getwd()
 
 # read geojson file, used to plot ploygons for zipcodes
-boston <- geojson_read("data/zillow-conversion-boston.geojson", what="sp")
+#setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/")
+#boston <- geojson_read("sumedh-boston.geojson", what="sp")
+
+boston <- geojson_read("zillow-conversion-boston.geojson", what="sp")
+
+
 
 # sample data for markers
+<<<<<<< HEAD
 sample <- read_csv("data/fixed_loc.csv") %>% group_by(LAT, LON) %>%
     count()
+=======
+load("sample.data.rda")
+sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
+>>>>>>> 96565372dd217862bb320af975db2e8f094bec5f
 
 ui <- dashboardPage(
   dashboardHeader(title = "Boston Property Assessment Visualization",
