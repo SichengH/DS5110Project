@@ -1,5 +1,5 @@
 library(shinydashboard)
-
+library(data.table)
 library(dplyr)
 library(geojsonio)
 library(leaflet)
@@ -18,10 +18,10 @@ wd<-getwd()
 boston <- geojson_read("zillow-conversion-boston.geojson", what="sp")
 
 
-
 # sample data for markers
 load("sample.data.rda")
-sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
+
+sample <- sample.data%>% group_by(LAT,LON) %>% count()
 
 ui <- dashboardPage(
   dashboardHeader(title = "Boston Property Assessment Visualization",

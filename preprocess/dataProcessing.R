@@ -194,10 +194,15 @@ data3<-data.frame(PID,full_address,Latitude,Longitude,YR_BUILT,YR_REMOD,YR_REMOD
 data4<-na.omit(data3)
 data4<-unite(data4,"key",PID,YR_BUILT,sep = "")
 data4<-separate(data4, key, into = c("PID", "YR_BUILT"), sep = "_")
-data4$Longitude<-as.numeric(as.character(data4$Longitude))
-data4$Latitude<-as.numeric(as.character(data4$Latitude))
+data4$Longitude<-as.numeric(as.character(data4$Longitude))#doesn't need to run
+data4$Latitude<-as.numeric(as.character(data4$Latitude))#doesn't need to run
 
-
+data5<-inner_join(data4,data.value.wide)
+names(data5$AC)<-c("No","Yes","Yes","No")
+names(data5$BTH_STYLE)<-c("","Luxury","Modern","0")
+names(data5$KIT_STYLE)<-c
+names(data5$INT_CND)<-c
+names(data5$INT_FIN)<-c
 
 
 # #lat and long
@@ -207,7 +212,7 @@ data4$Latitude<-as.numeric(as.character(data4$Latitude))
 # data.temp$Longitude<-0
 # data4<-rbind(data.temp,data.temp2)
 # data4<-separate(data4,key = PID, into = c("PID","space"))
-# data5<-inner_join(data4,data.value.wide)
+# 
 
 #make up a score
 data6<-data5[,c(1,14,15,16,17,18,19)]
@@ -308,10 +313,10 @@ colnames(data9)<-c("PID","YR_BUILT","full_address","Latitude","Longitude","YR_RE
 data10<-rbind(data8,data9)
 
 #saveing dir
-setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/data/")
+setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/app/")
+#
 
-
-
+load("sample.data.rda")
 
 
 
