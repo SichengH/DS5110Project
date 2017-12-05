@@ -19,14 +19,21 @@ boston <- geojson_read("zillow-conversion-boston.geojson", what="sp")
 
 
 # sample data for markers
-load("sample.data.rda")
+
+
+load("data.coord.rda")
+
 
 sample <- sample.data%>% group_by(LAT,LON) %>% count()
+
+#sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
+ 
 
 ui <- dashboardPage(
   dashboardHeader(title = "Boston Property Assessment Visualization",
                   titleWidth = 500),
   dashboardSidebar(width = 300,
+                   sliderInput("input.1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
                    # textOutput only to debug, remove in final build
                    textOutput("debug")),
   dashboardBody(

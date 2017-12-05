@@ -198,30 +198,23 @@ data4$Longitude<-as.numeric(as.character(data4$Longitude))#doesn't need to run
 data4$Latitude<-as.numeric(as.character(data4$Latitude))#doesn't need to run
 
 data5<-inner_join(data4,data.value.wide)
-names(data5$AC)<-c("No","Yes","Yes","No")
-names(data5$BTH_STYLE)<-c("","Luxury","Modern","0")
-names(data5$KIT_STYLE)<-c
-names(data5$INT_CND)<-c
-names(data5$INT_FIN)<-c
+levels(data5$AC)<-c("0","Yes","Yes","No")
+levels(data5$BTH_STYLE)<-c("0","Luxury","Modern","No","Semi-Modern")
+levels(data5$KIT_STYLE)<-c("0","Luxury","Modern","No","Semi-Modern")
+levels(data5$INT_CND)<-c("0","Average","Excellent","Fair","Good","Poor")
+levels(data5$INT_FIN)<-c("0","0","0","Elaborate","0","0","0","Normal","Substandard","0")
+data5<-na.omit(data5)
 
 
-# #lat and long
-# data.temp<-data4%>%filter(Latitude==42.30825,Longitude==-71.0492)
-# data.temp2<-data4%>%filter(Latitude!=42.30825,Longitude!=-71.0492)
-# data.temp$Latitude<-0
-# data.temp$Longitude<-0
-# data4<-rbind(data.temp,data.temp2)
-# data4<-separate(data4,key = PID, into = c("PID","space"))
-# 
 
 #make up a score
 data6<-data5[,c(1,14,15,16,17,18,19)]
-levels(data6$AC)<-c("1","3")
+levels(data6$AC)<-c("0","1","1","3")
 levels(data6$VIEW)<-c("0","3","5","2","4","1","6")
 levels(data6$INT_FIN)<-c("0","3","2","1")
-levels(data6$INT_CND)<-c("0","3","5","2","1","4","1")
-levels(data6$KIT_STYLE)<-c("0","3","2","1")
-levels(data6$BTH_STYLE)<-c("0","3","2","1")
+levels(data6$INT_CND)<-c("0","3","5","2","4","1")
+levels(data6$KIT_STYLE)<-c("0","4","3","1","2")
+levels(data6$BTH_STYLE)<-c("0","4","3","1","2")
 data6$AC<-as.numeric(as.character(data6$AC))
 data6$BTH_STYLE<-as.numeric(as.character(data6$BTH_STYLE))
 data6$KIT_STYLE<-as.numeric(as.character(data6$KIT_STYLE))
@@ -234,7 +227,8 @@ data6<-data6[,c(1,8)]
 
 
 data7<-left_join(data5,data6)
-
+data7<-na.omit(data7)
+data7$full_address<-as.character(data7$full_address)
 
 full.address<-table(data7$full_address)
 full.address.apt<-full.address[full.address>1]
@@ -278,7 +272,7 @@ for(i in 1:len){
     Longitude[i]<-uni(t.data$Longitude)
     YR_BUILT[i]<-uni(t.data$YR_BUILT)
     YR_REMOD[i]<-uni(t.data$YR_REMOD)
-    YR_REMOD2[i]<-uni(t.data$YR_REMOD)
+    YR_REMOD2[i]<-uni(t.data$YR_REMOD2)
     LIVING_AREA[i]<-summ(t.data$LIVING_AREA)
     NUM_FLOORS[i]<-uni_2(t.data$NUM_FLOORS)
     STRUCTURE_CLASS[i]<-uni_2(t.data$STRUCTURE_CLASS)
@@ -312,6 +306,7 @@ data8<-na.omit(data8)
 colnames(data9)<-c("PID","YR_BUILT","full_address","Latitude","Longitude","YR_REMOD","YR_REMOD2","LIVING_AREA","NUM_FLOORS","STRUCTURE_CLASS","BDRMS","BATHS","HEAT","AC","BTH_STYLE","KIT_STYLE","INT_CND","INT_FIN","VIEW","ZIPCODE","X2014","X2015","X2016","X2017","INT_SCORE","APT")
 data10<-rbind(data8,data9)
 
+data11<-left_join(data10,loc)
 #saveing dir
 setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/app/")
 #
