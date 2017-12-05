@@ -1,6 +1,5 @@
 *~
 *.csv
-*.geojson
 data
 *.aux
 *.log
