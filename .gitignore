@@ -1,7 +1,5 @@
 *~
 *.csv
-*.geojson
-data
 *.aux
 *.log
 *.bbl
