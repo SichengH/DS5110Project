@@ -203,6 +203,7 @@ levels(data5$BTH_STYLE)<-c("0","Luxury","Modern","No","Semi-Modern")
 levels(data5$KIT_STYLE)<-c("0","Luxury","Modern","No","Semi-Modern")
 levels(data5$INT_CND)<-c("0","Average","Excellent","Fair","Good","Poor")
 levels(data5$INT_FIN)<-c("0","0","0","Elaborate","0","0","0","Normal","Substandard","0")
+levels(data5$VIEW)<-c("0","Average","Excellent","Fair","Good","Poor","Special")
 data5<-na.omit(data5)
 
 

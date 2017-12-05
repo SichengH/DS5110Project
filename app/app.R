@@ -24,7 +24,7 @@ boston <- geojson_read("zillow-conversion-boston.geojson", what="sp")
 load("data.coord.rda")
 
 
-sample <- sample.data%>% group_by(LAT,LON) %>% count()
+sample <- data.coord%>% group_by(LAT,LON) %>% count()
 
 #sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
  
@@ -34,6 +34,12 @@ ui <- dashboardPage(
                   titleWidth = 500),
   dashboardSidebar(width = 300,
                    sliderInput("input.1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
+                   sliderInput("input.2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
+                   selectInput('input3', 'Bathroom Style', choices = data.coord$BTH_STYLE,multiple = TRUE),
+                   selectInput('input4', 'Kitchen Style', choices = data.coord$KIT_STYLE,multiple = TRUE),
+                   selectInput('input5', 'Interior Condition', choices = data.coord$INT_CND,multiple = TRUE),
+                   selectInput('input6', 'Interior Finish', choices = data.coord$INT_CND,multiple = TRUE),
+                   selectInput('input7', 'View', choices = data.coord$VIEW,multiple = TRUE),
                    # textOutput only to debug, remove in final build
                    textOutput("debug")),
   dashboardBody(
