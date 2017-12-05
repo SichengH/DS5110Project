@@ -9,10 +9,6 @@ library(shiny)
 library(highcharter)
 library(DT)
 library(htmltools)
-wd<-getwd()
-
-
-
 # read geojson file, used to plot ploygons for zipcodes
 #setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/")
 #boston <- geojson_read("sumedh-boston.geojson", what="sp")
