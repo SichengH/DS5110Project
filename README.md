@@ -85,9 +85,8 @@ help users visualize those changes.
 *See "proposal.pdf" for preliminary results.*
 
 ##  References:
-https://data.boston.gov/dataset/property-assessment
-[us-neighborhoods-boundaries](https://github.com/mashvisor/us-neighborhoods-boundaries)
-
+* [property-assessment data](https://data.boston.gov/dataset/property-assessment)
+* [us-neighborhoods-boundaries](https://github.com/mashvisor/us-neighborhoods-boundaries)
 
 
 ## Outline:

@@ -22,7 +22,7 @@ boston <- geojson_read("zillow-conversion-boston.geojson", what="sp")
 load("data.coord.rda")
 
 
-sample <- data.coord%>% group_by(LAT,LON) %>% count()
+sample <- data.coord %>% group_by(LAT,LON, YR_BUILT) %>% count()
 
 #sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
  
@@ -31,8 +31,8 @@ ui <- dashboardPage(
   dashboardHeader(title = "Boston Property Assessment Visualization",
                   titleWidth = 500),
   dashboardSidebar(width = 300,
-                   sliderInput("input.1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
-                   sliderInput("input.2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
+                   sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
+                   sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
                    selectInput('input3', 'Bathroom Style', choices = data.coord$BTH_STYLE,multiple = TRUE),
                    selectInput('input4', 'Kitchen Style', choices = data.coord$KIT_STYLE,multiple = TRUE),
                    selectInput('input5', 'Interior Condition', choices = data.coord$INT_CND,multiple = TRUE),
@@ -48,8 +48,8 @@ ui <- dashboardPage(
 server <- function(input, output, session) { 
   
   bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
-  pal <- colorBin("YlOrRd", domain = boston$density, bins = bins)
-  
+    pal <- colorBin("YlOrRd", domain = boston$density, bins = bins)
+
   labels <- sprintf(
     "<strong>%s</strong><br/>%g random int / mi<sup>2</sup>",
     boston$neighborhood, boston$density
@@ -90,6 +90,7 @@ server <- function(input, output, session) {
               title = NULL,
               position = "bottomright") %>%
 
+
      # markers group, shows borders for zipcode
      #   but does not shade. Displays marker cluster on map
      # Use as lower layer, for zoom >= 12
@@ -99,9 +100,9 @@ server <- function(input, output, session) {
                 dashArray = "5",
                 fillOpacity = 0.0,
                 group = "markers") %>%
-    addMarkers(data = sample[sample(nrow(sample)), ][1:70000, ], 
+    addMarkers(data = sample, 
                clusterOptions = markerClusterOptions(),
-               group = "markers" )
+               group = "markers", popup = paste0("<h1>hello</h1><br>", sample$LON, " ", sample$LAT))
   })
   
   # create reactive zoom function
