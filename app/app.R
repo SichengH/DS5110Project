@@ -27,8 +27,8 @@ num_heat <- unique(data.coord$HEAT)
 ui <- dashboardPage(
   dashboardHeader(title = "Flashlight"),
   dashboardSidebar(width = 300,
-                   sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
-                   sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
+                   sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017), sep = ""),
+                   sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017), sep = ""),
                    sliderInput('input3', 'Number of Bedrooms', min = 0,max = 17,value = c(0,17)),
                    sliderInput('input4', 'Number of Bathrooms', min = 0, max = 4, value = c(0,4)),
                    selectInput('input5', 'AC', choices = num_ac,multiple = TRUE),
