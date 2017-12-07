@@ -28,7 +28,7 @@ ui <- dashboardPage(
                    sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
                    sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
                    sliderInput('input3', 'Number of Bedrooms', min = 0,max = 17,value = c(0,17)),
-                   sliderInput('input4', 'Number of Kitchens', min = 0, max = 4, value = c(0,4)),
+                   sliderInput('input4', 'Number of Bathrooms', min = 0, max = 4, value = c(0,4)),
                    selectInput('input5', 'AC', choices = data.coord$AC,multiple = TRUE),
                    selectInput('input6', 'Heat', choices = data.coord$HEAT,multiple = TRUE),
                    # selectInput('input7', 'View', choices = data.coord$VIEW,multiple = TRUE),
