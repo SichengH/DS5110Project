@@ -41,17 +41,27 @@ def geojson_zillow_fc(rows):
     for row in rows:
         if row[2] == "Boston":
             f = Feature(geometry=Polygon(\
-                                [parse_zillow_coordinates(row[-1])]),
-                                id = row[-3],
+                                [parse_zillow_coordinates(row[6])]),
+                                id = row[4],
                                 properties={"state": str(row[0]),
                                             "county": str(row[1]),
                                             "city": str(row[2]),
-                                            "density": randint(1,100),
                                             "neighborhood": \
                                             str(row[3]),
                                             "regionid": str(row[4]),
                                             "total_potins": \
-                                            str(row[5])})
+                                            str(row[5]),
+                                            "mean_interior_score": \
+                                            row[7],
+                                            "sd_interior_score":\
+                                            row[8],
+                                            "max_int_score":\
+                                            row[9],
+                                            "min_int_score":\
+                                            row[10],
+                                            "region_property_count":\
+                                            row[11]
+                                })
             feature_collection.append(f)
 
         else:
@@ -88,14 +98,22 @@ def geojson_feature2_collection(rows):
 
 ################ Run commands ###########################
 
-rows = read_csv("data/coordinates.csv")
-fcollection = geojson_feature2_collection(rows)
+#rows = read_csv("data/coordinates.csv")
+#fcollection = geojson_feature2_collection(rows)
 
-write_geojson(fcollection, "data/sumedh-boston.geojson")
+#write_geojson(fcollection, "data/sumedh-boston.geojson")
+
+
+#rows = read_tsv(fpath = "data/MA-Regions.csv")
+#fcollection = geojson_zillow_fc(rows)
+
+#write_geojson(fcollection, "data/zillow-conversion-boston.geojson")
+
+
+#rows = read_tsv(fpath = "data/regionsdf.csv")
+#fcollection = geojson_zillow_fc(rows)
+
+#write_geojson(fcollection, "data/zillow-conversion-boston2.geojson")
 
 
 
-rows = read_tsv(fpath = "data/MA-Regions.csv")
-fcollection = geojson_zillow_fc(rows)
-
-write_geojson(fcollection, "data/zillow-conversion-boston.geojson")
