@@ -1,8 +1,8 @@
 library(readr)
 library(tidyverse)
 library(reshape2)
-load("~/Documents/Northeastern_University/DS5110_Data_Processing_Data_Management/DS5110Project/m_data/data.coord.rda")
-points_new <- read_csv("m_data/points_new.csv", 
+load("data.coord.rda")
+points_new <- read_csv("points_new.csv", 
                        col_names = FALSE)
 
 colnames(points_new) <- c("PID","LON","LAT","RegionID","RegionName")
