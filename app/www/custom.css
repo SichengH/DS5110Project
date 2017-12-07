@@ -1,0 +1,9 @@
+.skin-blue .main-header .logo {
+    font-family: "Calibri";
+    font-weight: bold;
+    font-size: 28px;
+    background-color: #003D76;
+}
+.skin-blue .main-header .navbar {
+    background-color: #0082D1;
+}

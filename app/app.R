@@ -28,8 +28,7 @@ sample <- data.coord %>% group_by(LAT,LON, YR_BUILT) %>% count()
  
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Boston Property Assessment Visualization",
-                  titleWidth = 500),
+  dashboardHeader(title = "Flashlight"),
   dashboardSidebar(width = 300,
                    sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
                    sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
@@ -41,8 +40,22 @@ ui <- dashboardPage(
                    # textOutput only to debug, remove in final build
                    textOutput("debug")),
   dashboardBody(
+      tags$head(tags$style(HTML('
+  .skin-blue .main-header .logo {
+    font-family: "Calibri";
+    font-weight: bold;
+    font-size: 28px;
+    background-color: #003D76;
+  }
+  .skin-blue .main-header .navbar {
+    background-color: #0082D1;
+  }
+
+'))),
+
     # leafletOutput, shows map
-    leafletOutput("boston_map", height = 600))
+      leafletOutput("boston_map", height = 600)
+  )
 )
 
 server <- function(input, output, session) { 
@@ -68,12 +81,6 @@ server <- function(input, output, session) {
     as.numeric(as.character(boston$region_property_count))
   ) %>% lapply(htmltools::HTML)
 
-    value <- reactiveVal(0)
-
-    observeEvent(input$input1, {
-        newValue <- input$input1
-        value(newValue)
-    })
   
   # maps tab
   # Reference: https://rstudio.github.io/leaflet/choropleths.html
@@ -121,9 +128,11 @@ server <- function(input, output, session) {
                 dashArray = "5",
                 fillOpacity = 0.0,
                 group = "markers") %>%
-    addMarkers(data = sample %>% filter(YR_BUILT > value()[1]), 
+    addMarkers(data = sample, 
                clusterOptions = markerClusterOptions(),
-               group = "markers", popup = paste0("<h1>hello</h1><br>", value()[1], " ", value()[2], "<br>", sample$YR_BUILT))
+               group = "markers", popup = paste0("<h1>hello</h1><br>",
+                                                 " ", "<br>",
+                                                 sample$YR_BUILT))
   })
   
   # create reactive zoom function
@@ -145,7 +154,7 @@ server <- function(input, output, session) {
       hideGroup(hide) %>%
       showGroup(show)
     
-    output$debug <- renderText({ zoom() })
+    #output$debug <- renderText({ zoom() })
   })
 }
 
