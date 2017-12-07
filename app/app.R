@@ -17,12 +17,7 @@ boston <- geojson_read("zillow-conversion-boston2.geojson", what="sp")
 
 
 # sample data for markers
-
-
 load("data.coord.rda")
-
-
-sample <- data.coord %>% group_by(LAT,LON, YR_BUILT) %>% count()
 
 #sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
  
@@ -32,11 +27,11 @@ ui <- dashboardPage(
   dashboardSidebar(width = 300,
                    sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
                    sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
-                   selectInput('input3', 'Bathroom Style', choices = data.coord$BTH_STYLE,multiple = TRUE),
-                   selectInput('input4', 'Kitchen Style', choices = data.coord$KIT_STYLE,multiple = TRUE),
-                   selectInput('input5', 'Interior Condition', choices = data.coord$INT_CND,multiple = TRUE),
-                   selectInput('input6', 'Interior Finish', choices = data.coord$INT_CND,multiple = TRUE),
-                   selectInput('input7', 'View', choices = data.coord$VIEW,multiple = TRUE),
+                   sliderInput('input3', 'Number of Bedrooms', min = 0,max = 17,value = c(0,17)),
+                   sliderInput('input4', 'Number of Kitchens', min = 0, max = 4, value = c(0,4)),
+                   selectInput('input5', 'AC', choices = data.coord$AC,multiple = TRUE),
+                   selectInput('input6', 'Heat', choices = data.coord$HEAT,multiple = TRUE),
+                   # selectInput('input7', 'View', choices = data.coord$VIEW,multiple = TRUE),
                    # textOutput only to debug, remove in final build
                    textOutput("debug")),
   dashboardBody(
@@ -80,13 +75,36 @@ server <- function(input, output, session) {
     round(as.numeric(as.character(boston$sd_interior_score))^(5/2),0),
     as.numeric(as.character(boston$region_property_count))
   ) %>% lapply(htmltools::HTML)
+  
 
   
   # maps tab
   # Reference: https://rstudio.github.io/leaflet/choropleths.html
   output$boston_map <- renderLeaflet({
+    if(!is.null(input$input1)){
+      data.coord<-data.coord%>%filter(YR_BUILT >= input$input1[1])%>%filter(YR_BUILT <= input$input1[2])
+    }
+    if(!is.null(input$input2)){
+      data.coord<-data.coord%>%filter(YR_REMOD >= input$input2[1])%>%filter(YR_REMOD <= input$input2[2])
+    }
+    if(!is.null(input$input3)){
+      data.coord<-data.coord%>%filter(BDRMS >= input$input3[1])%>%filter(BDRMS <= input$input3[2])
+    }
+    if(!is.null(input$input4)){
+      data.coord<-data.coord%>%filter(BATHS >= input$input4[1])%>%filter(BATHS <= input$input4[2])
+    }
+    if(!is.null(input$input5)){
+      data.coord<-data.coord%>%filter(AC %in% input$input5)
+    }
+    if(!is.null(input$input6)){
+      data.coord<-data.coord%>%filter(HEAT %in% input$input6)
+    }
+    
+  
+    
+    sample <- data.coord %>% group_by(LAT,LON, YR_BUILT,full_address,YR_REMOD,INT_SCORE) %>% count()
     leaflet(boston) %>%
-        setView(-71.0589, 42.3, 11) %>%
+        setView(-71.0589, 42.3, 11) %>% 
         addProviderTiles(providers$CartoDB.Positron) %>%
         addPolygons(
             fillColor = ~pal(as.numeric(
@@ -128,11 +146,14 @@ server <- function(input, output, session) {
                 dashArray = "5",
                 fillOpacity = 0.0,
                 group = "markers") %>%
-    addMarkers(data = sample, 
+    addMarkers(data = sample, lng = ~LON, lat = ~LAT,
                clusterOptions = markerClusterOptions(),
                group = "markers", popup = paste0("<h1>hello</h1><br>",
                                                  " ", "<br>",
-                                                 sample$YR_BUILT))
+                                                 "\nYear Build:",sample$YR_BUILT,
+                                                 "\nYear Remodeled:",sample$YR_REMO,
+                                                 "\nFull Address:",sample$full_address,
+                                                 "\nInterior Score",sample$INT_SCORE))#how to change line
   })
   
   # create reactive zoom function
