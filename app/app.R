@@ -22,21 +22,31 @@ boston <- geojson_read("zillow-conversion-boston2.geojson", what="sp")
 load("data.coord.rda")
 
 
-sample <- data.coord %>% group_by(LAT,LON, YR_BUILT) %>% count()
+#sample <- data.coord %>% group_by(LAT,LON, YR_BUILT) %>% count()
 
 #sample <- sample.data%>% group_by(Latitude,Longitude) %>% count()
- 
 
+bth_style <- unique(data.coord$BTH_STYLE)
+kit_style <- unique(data.coord$KIT_STYLE)
+int_cnd <- unique(data.coord$INT_CND)
+int_fin <- unique(data.coord$INT_FIN)
+view_cnd <- unique(data.coord$VIEW)
+ 
 ui <- dashboardPage(
   dashboardHeader(title = "Flashlight"),
   dashboardSidebar(width = 300,
                    sliderInput("input1", "Year Build",min = 1850,max = 2017,value = c(1850,2017)),
                    sliderInput("input2", "Year Remodeled",min = 1950,max = 2017,value = c(1950,2017)),
-                   selectInput('input3', 'Bathroom Style', choices = data.coord$BTH_STYLE,multiple = TRUE),
-                   selectInput('input4', 'Kitchen Style', choices = data.coord$KIT_STYLE,multiple = TRUE),
-                   selectInput('input5', 'Interior Condition', choices = data.coord$INT_CND,multiple = TRUE),
-                   selectInput('input6', 'Interior Finish', choices = data.coord$INT_CND,multiple = TRUE),
-                   selectInput('input7', 'View', choices = data.coord$VIEW,multiple = TRUE),
+                   selectInput('input3', 'Bathroom Style', choices = bth_style,
+                               multiple = TRUE),
+                   selectInput('input4', 'Kitchen Style', choices = kit_style,
+                               multiple = TRUE),
+                   selectInput('input5', 'Interior Condition',choices = int_cnd,
+                               multiple = TRUE),
+                   selectInput('input6', 'Interior Finish', choices = int_fin,
+                               multiple = TRUE),
+                   selectInput('input7', 'View', choices = view_cnd,
+                               multiple = TRUE),
                    # textOutput only to debug, remove in final build
                    textOutput("debug")),
   dashboardBody(
@@ -50,7 +60,6 @@ ui <- dashboardPage(
   .skin-blue .main-header .navbar {
     background-color: #0082D1;
   }
-
 '))),
 
     # leafletOutput, shows map
