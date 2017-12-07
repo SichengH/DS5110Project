@@ -137,6 +137,8 @@ server <- function(input, output, session) {
                 dashArray = "5",
                 fillOpacity = 0.0,
                 group = "markers") %>%
+
+    # individual marker information here
     addMarkers(data = sample, 
                clusterOptions = markerClusterOptions(),
                group = "markers", popup = paste0("<h1>hello</h1><br>",
