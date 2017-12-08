@@ -13,7 +13,7 @@ library(htmltools)
 #setwd("/Users/haosicheng/Documents/GitHub/DS5110Project/")
 #boston <- geojson_read("sumedh-boston.geojson", what="sp")
 
-boston <- geojson_read("zillow-conversion-boston2.geojson", what="sp")
+boston <- geojson_read("zillow-conversion-boston3.geojson", what="sp")
 
 
 # sample data for markers
@@ -32,10 +32,9 @@ ui <- dashboardPage(
                    sliderInput('input3', 'Number of Bedrooms', min = 0,max = 17,value = c(0,17)),
                    sliderInput('input4', 'Number of Bathrooms', min = 0, max = 4, value = c(0,4)),
                    selectInput('input5', 'AC', choices = num_ac,multiple = TRUE),
-                   selectInput('input6', 'Heat', choices = num_heat,multiple = TRUE),
-                   # selectInput('input7', 'View', choices = data.coord$VIEW,multiple = TRUE),
-                   # textOutput only to debug, remove in final build
-                   textOutput("debug")),
+                   selectInput('input6', 'Heat', choices = num_heat,multiple = TRUE)
+          
+                   ),
   dashboardBody(
       tags$head(tags$style(HTML('
   .skin-blue .main-header .logo {
@@ -68,13 +67,13 @@ server <- function(input, output, session) {
             "Interior Mean Score: %g <br>",
             "Interior Max Score: %g <br>",
             "Interior Min Score: %g <br>",
-            "Interior SD Score: %g <br>",
+            "Projected Value Change for 2018: %g <br>",
             "Neighborhood Property Count: %g"),
     boston$neighborhood,
     round(as.numeric(as.character(boston$mean_interior_score))^(5/2),0),
     round(as.numeric(as.character(boston$max_int_score))^(5/2),0),
     round(as.numeric(as.character(boston$min_int_score))^(5/2),0),
-    round(as.numeric(as.character(boston$sd_interior_score))^(5/2),0),
+    round(as.numeric(as.character(boston$projectedfor2018)),0),
     as.numeric(as.character(boston$region_property_count))
   ) %>% lapply(htmltools::HTML)
   

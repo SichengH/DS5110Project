@@ -60,7 +60,9 @@ def geojson_zillow_fc(rows):
                                             "min_int_score":\
                                             row[10],
                                             "region_property_count":\
-                                            row[11]
+                                            row[11],
+                                            "projectedfor2018":\
+                                            row[17],
                                 })
             feature_collection.append(f)
 
@@ -114,6 +116,21 @@ def geojson_feature2_collection(rows):
 #fcollection = geojson_zillow_fc(rows)
 
 #write_geojson(fcollection, "data/zillow-conversion-boston2.geojson")
+
+
+## Data munging in R
+#regionsdf <- read_tsv("data/regionsdf.csv")
+#sumedh <- read_csv("models/ProjectedRiseInSqft.csv")
+
+#region_final <- left_join(x = regionsdf, y = sumedh,
+#                          by = c("X4" = "regions"))
+#write_tsv(region_final, "data/regions_final.tsv")
+
+
+rows = read_tsv(fpath = "data/regions_final.tsv")
+fcollection = geojson_zillow_fc(rows)
+
+write_geojson(fcollection, "data/zillow-conversion-boston3.geojson")
 
 
 
