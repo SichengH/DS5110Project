@@ -39,13 +39,49 @@
 
 \section*{Summary}
 
-Summary goes here
+As a new home-buyer, it's easy to find out about your home
+but hard to get an understanding of your neighborhood. Flashlight
+makes it easier for you to see your potential neighborhood in Boston.
+This discrepancy is because current real estate websites emphasize
+individual properties rather than individual neighborhoods. Our group
+communicates the differences between Boston neighborhoods using an
+interactive data visualization called Flashlight.
+
+Our dataset includes Property Assessment history from 2014-2017
+\cite{Property49:online} using Boston's Open Data Hub. We enriched the 
+property assessment data with coordinates from Open Addresses
+\cite{OpenAddr24:online}, and neighborhood boundaries from Zillow
+\cite{ZillowNe81:online}. These combined datasets provide unique
+insights to new home-buyers in Boston. As open data becomes more
+prevalent in cities across the United States, we can scale our insights
+and models.
 
 \section*{Methods}
 
-We used a variety of methods.
+We used methods for collecting, preparing, modeling, and presenting
+our data. Each step of the process is detailed here.
 
 \subsection{Data Collection}
+
+We started with Boston's Property Assessment data from 2014-2017
+\cite{Property49:online}. This dataset ``[g]ives property, or parcel,
+ownership together with value information, which ensures fair assessment
+of Boston taxable and non-taxable property of all types and
+classifications.''\cite{Property49:online}. We wanted to use this
+information because it helps us capture changes in Boston properties
+over time. For example, a remodeled property would change it's property
+tax assessment value we have this variable available to us.
+
+After starting with the Property Assessment dataset, we brought in
+additional datasets to increase the value of our data collection.
+Neighborhoods in Boston were not named or geographically demarcated in
+the Property Assessment dataset so we brought in Neighborhood Boundaries
+from Zillow \cite{ZillowNe81:online} to make this distinction.
+Additionally, geographic coordinates for each assessed property's address
+were occasionally not coded correctly or included at all for 2017 so we 
+had to bring in those values using Open Addresses
+\cite{OpenAddr24:online}. Once neighborhood names, boundaries, and missing
+coordinates were available, we were able to proceed to data preparation.
 
 \subsection{Data Preparation}
 
