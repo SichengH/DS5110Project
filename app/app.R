@@ -67,7 +67,7 @@ server <- function(input, output, session) {
             "Interior Mean Score: %g <br>",
             "Interior Max Score: %g <br>",
             "Interior Min Score: %g <br>",
-            "Projected Value Change for 2018: %g <br>",
+            "Projected Value Change for 2018 (price / sqft) : %g <br>",
             "Neighborhood Property Count: %g"),
     boston$neighborhood,
     round(as.numeric(as.character(boston$mean_interior_score))^(5/2),0),
