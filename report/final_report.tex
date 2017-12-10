@@ -85,6 +85,59 @@ coordinates were available, we were able to proceed to data preparation.
 
 \subsection{Data Preparation}
 
+There were a number of steps involved in data preparation.
+
+\subsubsection{Data Audits}
+
+The purpose of a data audit is to answer questions related to data
+quantity and quality. We started with our Property Assessment dataset
+by checking for the quantity of populated items within each variable.
+About 73\% of variables were less than 70\% populated. We were able to
+disregard these variables for our modeling purposes. Data quality checks
+are not as easily automated but value added.
+
+Analyzing data quality helped us understand data problems up front
+such as having a non-unique primary key about $0.3\%$ of the time,
+latitude and longitude were missing or corrupted about 35\% of the time,
+and the ratio of unique addresses concatenated with coordinates to
+unique coordinates were about $3:1$. We also found that the Property
+Assessment data did not map to defined neighborhoods in Boston.
+Understanding these shortcomings with a data audit allowed our group
+to plan remediation steps early in our analysis.
+
+
+\subsubsection{Geocoding Missing Addresses}
+
+During the data audit we found about 35\% of addresses within the
+Property Assessment data were not matched to any coordinate pair. Our
+team work to mitigate this deficiency by leveraging the
+a ``free and open global address collection'' called the
+OpenAddresses \cite{OpenAddr24:online} project. There are several
+strategies one can take when Geocoding (mapping address strings to
+coordinate pairs) addresses. The simplest would be to use Google Maps
+Geocoding API \cite{GettingS89:online}.
+
+The Google Maps Geocoding API has a free usage tier which maxes out at
+2,500 requests per day \cite{GettingS89:online}. Our data required
+geocoding an order of magnitude more coordinates so this approach was
+out of the question. We resolved the issue by creating 'address hashes'
+for each address in the OpenAddress and Property Assessment dataset
+with missing coordinates. An 'address hash' was a string concatenated
+of concatenated values for street number, street name, city, and zip
+code. We excluded unit number as a simplifying assumption because we
+expected all unit numbers to be at the same property. Once 'address
+hash' had been computed for both datasets we performed an inner join.
+
+In some cases, this join generated a many-to-many relationship between
+addresses in both datasets due to our exclusion of unit numbers. We
+resolved this issue by grouping and taking the first coordinate pair.
+Subsequent iterations of our analysis can be improved by adding
+robustness to our geocoding procedure.
+
+\subsubsection{Working with GeoJSON and Python}
+
+stuff about leaflet here.
+
 \subsection{Data Modeling}
 
 \subsection{Data Presentation}
