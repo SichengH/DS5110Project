@@ -56,6 +56,8 @@ insights to new home-buyers in Boston. As open data becomes more
 prevalent in cities across the United States, we can scale our insights
 and models.
 
+
+
 \section*{Methods}
 
 We used methods for collecting, preparing, modeling, and presenting
@@ -159,7 +161,7 @@ depending on the zoom level, either the regions or the points are shown.
 
 \subsubsection{Data Transformation}
 
-
+The final step of data preparation is data transformation. The primary purpose of data transformation in this project is to extract all the information we need and put in the correct format. For properties with same addresses (for example, apartment buildings), we merged all the units and added the total living area and total assessed value. And we deleted all the observations with mis-recorded data. The last step, we combined all the columns that are related to the interior characteristics of properties into a single column called the interior score. One of all main goal is to show user interior information of Boston housing; this is the kind of information new people could hardly find. Since all data are recorded in an ordinal way, we simply scaled them from 1, 2 and so on, with 1 meaning the lowest ranking. The interior score is the sum of all the columns with the power of 2.5 to make the interior score normally distributed (approximately)
 
 \subsection{Data Modeling}
 
@@ -250,7 +252,7 @@ Together everyone achieves more.
 
 \begin{itemize}
 \item \textbf{Tyler Brown:}
-\item \textbf{Sicheng Hao:}
+\item \textbf{Sicheng Hao:} Last part of data transformation, Shiny App data filter.
 \item \textbf{Nischal Mahaveer Chand:}
 \item \textbf{Sumedh Sankhe:}
 \end{itemize}
