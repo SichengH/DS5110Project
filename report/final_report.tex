@@ -89,7 +89,8 @@ coordinates were available, we were able to proceed to data preparation.
 
 \subsection{Data Preparation}
 
-There were a number of steps involved in data preparation.
+There were a number of steps involved in data preparation. Transformation
+of data is considered to be a part of data preparation.
 
 \subsubsection{Data Audits}
 
@@ -161,33 +162,13 @@ clustered in higher zoom levels to reduce overplotting. Finally,
 depending on the zoom level, either the regions or the points are shown.
 
 
-\subsubsection{Data Transformation}
-
-The final step of data preparation is data transformation. The primary 
-purpose of data transformation in this project is to extract all the 
-information we need and put in the correct format. For properties with 
-same addresses (for example, apartment buildings with multiple units), 
-we merged all the units and added the total living area and total 
-assessed value, while deleting all the observations with mis-recorded 
-data. Then, we combined all the columns that are related to the interior 
-characteristics of properties into a single column called the interior 
-score. One of the project goals was to help users understand their 
-prospective properties better, not only from the neighborhood, but also
-from inside. This is the kind of information new residents could hardly 
-find. Since all interior characteristic data columns are ordinal, we 
-simply scaled them to 1, 2 and so on, according to what the group felt
-were high valued characteristics, with 1 being the lowest. The interior 
-score is the sum of all such columns. Also, the score is exponetiated
-by a power of 2.5 to make the interior score normally distributed 
-(approximately).
-
 \subsection{Data Modeling}
 
 We used data modeling to help our user understand the differences between
 neighborhoods as well as the differences between individual properties.
-Two scores were generated, one assessing the interior of each property,
-and the other projected change in property assessment value for this
-upcoming year. 
+Two scores were generated, one as a descriptive statistic assessing the
+interior of each property, and the other projected change in property
+assessment value for this upcoming year. 
 
 \subsubsection{Projected Change to Property Assessment Value}
 
@@ -221,6 +202,21 @@ performance.
 An interesting problem would be to gauge how housing evaluations are done 
 and how neighborhoods end up having such diverse scores even when they
 are next to each other.
+
+\subsubsection{Interior Score as a Descriptive Statistic}
+
+We combined all the columns that are related to the interior 
+characteristics of properties into a single column called the interior 
+score. One of the project goals was to help users understand their 
+prospective properties better, not only from the neighborhood, but also
+from inside. This is the kind of information new residents could hardly 
+find. Since all interior characteristic data columns are ordinal, we 
+simply scaled them to 1, 2 and so on, according to what the group felt
+were high valued characteristics, with 1 being the lowest. The interior 
+score is the sum of all such columns. Also, the score is exponetiated
+by a power of 2.5 to make the interior score normally distributed 
+(approximately).
+
 
 \subsection{Data Presentation}
 
