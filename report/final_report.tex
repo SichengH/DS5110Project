@@ -70,7 +70,6 @@ government website \cite{Property49:online}, we are going to focus on
 how to visualize those two aspects of Boston housing. 
 
 
-
 \section*{Methods}
 
 We used methods for collecting, preparing, modeling, and presenting
@@ -101,7 +100,9 @@ coordinates were available, we were able to proceed to data preparation.
 \subsection{Data Preparation}
 
 There were a number of steps involved in data preparation. Transformation
-of data is considered to be a part of data preparation.
+of data is considered to be a part of data preparation. We detail notable
+parts of our data preparation by elaborating on data audits, geocoding
+missing addresses, and working with GeoJSON in Python.
 
 \subsubsection{Data Audits}
 
@@ -116,8 +117,8 @@ Analyzing data quality helped us understand data problems up front
 such as having a non-unique primary key about $0.3\%$ of the time,
 latitude and longitude were missing or corrupted about 35\% of the time,
 and the ratio of unique addresses concatenated with coordinates to
-unique coordinates were about $3:1$. We also found that the Property
-Assessment data did not map to defined neighborhoods in Boston.
+unique coordinates were about $\frac{3}{1}$. We also found that the
+Property Assessment data did not map to defined neighborhoods in Boston.
 Understanding these shortcomings with a data audit allowed our group
 to plan remediation steps early in our analysis.
 
@@ -208,11 +209,9 @@ response variable. The above model was applied to predict the price per
 sqft for the year 2018 taking into considerations the values from 2015
 through 2017. Since there was no way to gauge the performance of this
 model with real data as of now it would be interesting to see the
-performance.
-
-An interesting problem would be to gauge how housing evaluations are done 
-and how neighborhoods end up having such diverse scores even when they
-are next to each other.
+performance. An interesting problem would be to gauge how housing 
+evaluations are done and how neighborhoods end up having such diverse 
+scores even when they are next to each other.
 
 \subsubsection{Interior Score as a Descriptive Statistic}
 
@@ -220,13 +219,12 @@ We combined all the columns that are related to the interior
 characteristics of properties into a single column called the interior 
 score. One of the project goals was to help users understand their 
 prospective properties better, not only from the neighborhood, but also
-from inside. This is the kind of information new residents could hardly 
-find. Since all interior characteristic data columns are ordinal, we 
-simply scaled them to 1, 2 and so on, according to what the group felt
-were high valued characteristics, with 1 being the lowest. The interior 
-score is the sum of all such columns. Also, the score is exponetiated
-by a power of 2.5 to make the interior score normally distributed 
-(approximately).
+from inside. This is the kind of information which was barely accessible
+for potential homebuyers. Since all interior characteristic data columns
+are ordinal, we simply scaled them to 1, 2 and so on, according to what 
+the group felt were high valued characteristics, with 1 being the lowest. The interior score is the sum of all such columns. Also, the score is 
+exponentiated by a power of 2.5 to make the interior score normally 
+distributed (approximately).
 
 
 \subsection{Data Presentation}
@@ -255,9 +253,9 @@ would most suit their needs.
 
 \subsection{Shiny App}
 
-https://sichenghao1992.shinyapps.io/DS5110/
+Our project is deployed on Shiny Server:
+``https://sichenghao1992.shinyapps.io/DS5110/''
 
-Above is our project on Shiny Server. 
 
 \subsection{Interesting Findings}
     \begin{enumerate}
