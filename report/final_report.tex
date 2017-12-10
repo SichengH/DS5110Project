@@ -56,6 +56,8 @@ insights to new home-buyers in Boston. As open data becomes more
 prevalent in cities across the United States, we can scale our insights
 and models.
 
+Our prime focus of this project provides the information that other major housing websites do not, which are property assessment value and interior detail. Property assessment value does not relate to the property's selling price directly, but as the value of taxing, assessment value has a powerful influence on home buyer's financial statements. Interior detail is the information hard to get from just take a look from outside, but the interior condition of properties in Boston are widely distributed due to the long history of the city. Interior condition determined how much money and time new owner need to spend after buying the property. Since our data is a legit source from the government website, we are going to focused on how to visualize those two aspects of Boston housing. 
+
 
 
 \section*{Methods}
@@ -161,7 +163,7 @@ depending on the zoom level, either the regions or the points are shown.
 
 \subsubsection{Data Transformation}
 
-The final step of data preparation is data transformation. The primary purpose of data transformation in this project is to extract all the information we need and put in the correct format. For properties with same addresses (for example, apartment buildings), we merged all the units and added the total living area and total assessed value. And we deleted all the observations with mis-recorded data. The last step, we combined all the columns that are related to the interior characteristics of properties into a single column called the interior score. One of all main goal is to show user interior information of Boston housing; this is the kind of information new people could hardly find. Since all data are recorded in an ordinal way, we simply scaled them from 1, 2 and so on, with 1 meaning the lowest ranking. The interior score is the sum of all the columns with the power of 2.5 to make the interior score normally distributed (approximately)
+The final step of data preparation is data transformation. The primary purpose of data transformation in this project is to extract all the information we need and put in the correct format. For properties with same addresses (for example, apartment buildings), we merged all the units and added the total living area and total assessed value. And we deleted all the observations with mis-recorded data. The last step, we combined all the columns that are related to the interior characteristics of properties into a single column called the interior score. One of our main goal is to show user interior information of Boston housing; this is the kind of information new residents could hardly find. Since all data are recorded in an ordinal way, we simply scaled them from 1, 2 and so on, with 1 meaning the lowest ranking. The interior score is the sum of all the columns with the power of 2.5 to make the interior score normally distributed (approximately)
 
 \subsection{Data Modeling}
 
@@ -241,7 +243,7 @@ only slightly for the year 2018.
 
 \section*{Discussion}
 
-Let's discuss what we did.
+One huge surprise from the data is how inaccurate the coordinates are. Since we only include the actual coordinates, not all properties are on our interactive map. 
 
 \section*{Statement of Contributions}
 
