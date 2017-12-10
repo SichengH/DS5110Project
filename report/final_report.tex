@@ -270,19 +270,31 @@ Above is our project on Shiny Server.
 
 \section*{Discussion}
 
-One huge surprise from the data is how inaccurate the coordinates from government website are. Since we only include the actual coordinates, not all properties are on our interactive map. 
+    \begin{enumerate}
+        \item One huge surprise was finding how inaccurate the coordinates for 
+            properties were from government websites. Since we only include 
+            actual coordinates for the properties, not all properties are on the 
+            interactive map.
 
-Since we can only find data from 2014 to 2017, our prediction model could potentially misrepresent the assessment value of Boston Housing. With more recorded data in the future, our model could have a better performance.
+        \item Since our model is only based on assessment values from the year
+            2014 to the year 2017, the projected values for assessment may be 
+            misrepresent. With more data in the future, our model could preform 
+            better.
+    \end{enumerate}
 
 \section*{Statement of Contributions}
 
 Together everyone achieves more.
 
 \begin{itemize}
-\item \textbf{Tyler Brown:}
-\item \textbf{Sicheng Hao:} Last part of data transformation, Shiny App data filter.
-\item \textbf{Nischal Mahaveer Chand:}
-\item \textbf{Sumedh Sankhe:}
+\item \textbf{Tyler Brown:} 
+\item \textbf{Sicheng Hao:} Data transformation, Shiny App data filter.
+\item \textbf{Nischal Mahaveer Chand:} Map visualization, Finding region for each
+    property in map, Geocoding data to find missing latitude and longitude.
+\item \textbf{Sumedh Sankhe:} Data cleaning and transformation, Data audit to
+    apply machine learning models to predict assessment values for 2018,
+    Linear regression for price per sqare feet for all regions, Initail tests
+    to geocode data using Google's Geocoding API.
 \end{itemize}
 
 \begin{appendices}
