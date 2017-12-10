@@ -157,6 +157,10 @@ clustered in higher zoom levels to reduce overplotting. Finally,
 depending on the zoom level, either the regions or the points are shown.
 
 
+\subsubsection{Data Transformation}
+
+
+
 \subsection{Data Modeling}
 
 We used data modeling to help our user understand the differences between
@@ -169,15 +173,26 @@ prices for properties would change in the next year.
 
 all though physical
 features of the property play an important role in the value of a property
-increase on property value largely depends on the market conditions, surrounding
-neighborhoods. Hence to take into account the missing features about market 
-it was decided upon to create a simple linear model at first using previous evaluations
-to predict for the year 2017. A more important prediction would be to predict how the price
-per square feet changes per region, hence the same linear model applied to predict
-price per sqft.First the price per sqft was calculate for every PID, it was grouped by
-the region and the mean price per sqft was calculated for that particular region for all years. Next a linear regression model was created with 3 variables and 1 response variable, the variables included the valuations for the year 2014 through 2016 which predicted the evaluations for the year 2017. With an RMSE of 5.45$/sqft and a MAE of 4.477$/sqft the model performed unexcitingly. Considering all the variables were linearly related to the response variable. The above model was applied to predict the price per sqft for the year 2018 taking into considerations the values from 2015 through 2017. Since there was no way to gauge the performance of this model with real data as of now it would be interesting to see the performance.
-An interesting problem would be to gauge how housing evaluations are done and how neighborhoods 
-end up having such diverse scores even when they are next to each other.
+increase on property value largely depends on the market conditions, 
+surrounding neighborhoods. Hence to take into account the missing features 
+about market it was decided upon to create a simple linear model at first 
+using previous evaluations to predict for the year 2017. A more important 
+prediction would be to predict how the price per square feet changes per 
+region, hence the same linear model applied to predict price per sqft. 
+First the price per sqft was calculate for every PID, it was grouped by the 
+region and the mean price per sqft was calculated for that particular region 
+for all years. Next a linear regression model was created with 3 variables 
+and 1 response variable, the variables included the valuations for the year 
+2014 through 2016 which predicted the evaluations for the year 2017. With 
+an RMSE of \$5.45/sqft and a MAE of \$4.477/sqft the model performed 
+unexcitingly. Considering all the variables were linearly related to the 
+response variable. The above model was applied to predict the price per sqft 
+for the year 2018 taking into considerations the values from 2015 through 
+2017. Since there was no way to gauge the performance of this model with 
+real data as of now it would be interesting to see the performance.
+An interesting problem would be to gauge how housing evaluations are done 
+and how neighborhoods end up having such diverse scores even when they are 
+next to each other.
 
 \subsection{Data Presentation}
 We use Shiny Dashboard to present our data. The dashboard has two parts, 
@@ -200,7 +215,9 @@ most suit their needs.
 
 \section*{Results}
 
-We had some results.
+https://sichenghao1992.shinyapps.io/DS5110/
+
+Above is our project on Shiny Server. 
 
 
 1. The rise in evaluations can be seen to grow very fast from 2014 to 2016, but the 
@@ -228,7 +245,9 @@ Together everyone achieves more.
 
 \begin{appendices}
 
-Appendices here.
+https://github.com/sichenghao1992/DS5110Project
+
+Above is our working repository.
 
 \end{appendices}
 
