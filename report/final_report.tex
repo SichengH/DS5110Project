@@ -151,15 +151,23 @@ the shapefile to GeoJSON files. We then realised that there was no way to
 map the original data to the neighborhood regions which had been defined
 by Zillow. To counter this, we mapped each point on the map to a region
 by checking if the latitude and longitude of a point were inside a
-perticular region polygon (##Which algorithm?). The mean interior score
+particular region polygon. The mean interior score
 of each region was used to fill the polygons, and multiple points were
 clustered in higher zoom levels to reduce overplotting. Finally,
 depending on the zoom level, either the regions or the points are shown.
 
 
 \subsection{Data Modeling}
+
+We used data modeling to help our user understand the differences between
+neighborhoods as well as the differences between individual properties.
+Two scores were generated, one assessing the interior of each property,
+the other a
+
 The purpose of our data modeling was to create a representation of how
-prices for properties would change in the next year, all though physical
+prices for properties would change in the next year.
+
+all though physical
 features of the property play an important role in the value of a property
 increase on property value largely depends on the market conditions, surrounding
 neighborhoods. Hence to take into account the missing features about market 
