@@ -163,7 +163,23 @@ depending on the zoom level, either the regions or the points are shown.
 
 \subsubsection{Data Transformation}
 
-The final step of data preparation is data transformation. The primary purpose of data transformation in this project is to extract all the information we need and put in the correct format. For properties with same addresses (for example, apartment buildings), we merged all the units and added the total living area and total assessed value. And we deleted all the observations with mis-recorded data. The last step, we combined all the columns that are related to the interior characteristics of properties into a single column called the interior score. One of our main goal is to show user interior information of Boston housing; this is the kind of information new residents could hardly find. Since all data are recorded in an ordinal way, we simply scaled them from 1, 2 and so on, with 1 meaning the lowest ranking. The interior score is the sum of all the columns with the power of 2.5 to make the interior score normally distributed (approximately)
+The final step of data preparation is data transformation. The primary 
+purpose of data transformation in this project is to extract all the 
+information we need and put in the correct format. For properties with 
+same addresses (for example, apartment buildings with multiple units), 
+we merged all the units and added the total living area and total 
+assessed value, while deleting all the observations with mis-recorded 
+data. Then, we combined all the columns that are related to the interior 
+characteristics of properties into a single column called the interior 
+score. One of the project goals was to help users understand their 
+prospective properties better, not only from the neighborhood, but also
+from inside. This is the kind of information new residents could hardly 
+find. Since all interior characteristic data columns are ordinal, we 
+simply scaled them to 1, 2 and so on, according to what the group felt
+were high valued characteristics, with 1 being the lowest. The interior 
+score is the sum of all such columns. Also, the score is exponetiated
+by a power of 2.5 to make the interior score normally distributed 
+(approximately).
 
 \subsection{Data Modeling}
 
@@ -237,11 +253,17 @@ https://sichenghao1992.shinyapps.io/DS5110/
 Above is our project on Shiny Server. 
 
 \subsection{Interesting Findings}
-1. The rise in evaluations can be seen to grow very fast from 2014 to 2016, but the 
-evaluations for the year 2017 have been low considering the rise they have witnessed 
-for the past 3 years, if the same trend follows into 2018 then the evaluations will change 
-only slightly for the year 2018.
-2. The best region in the interior score is Central. Mattapan and Hyde Park have the lowest interior score. This is also the intuition of Boston housing by some long-time Boston residents. 
+    \begin{enumerate}
+        \item The rise in evaluations can be seen to grow very fast from 
+            2014 to 2016, but the evaluations for the year 2017 have been 
+            low considering the rise they have witnessed for the past 3 years, 
+            if the same trend follows into 2018 then the evaluations will 
+            change only slightly for the year 2018.
+        \item The best region in the interior score is Central. Mattapan and 
+            Hyde Park have the lowest interior score. This is also the intuition 
+            of Boston housing by some long-time Boston residents. 
+    \end{enumerate}
+
 
 \section*{Discussion}
 
