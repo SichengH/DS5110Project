@@ -135,22 +135,26 @@ Subsequent iterations of our analysis can be improved by adding
 robustness to our geocoding procedure.
 
 \subsubsection{Working with GeoJSON and Python}
-To create the graphical interface for the map, we used Leaflet - a
-library to show interactive maps. The team looked at a number of ways 
-to plot the boundaries of each region on the map, and decided that 
-the best way would be to use GeoJSON - a format for encoding a variety 
-of geographic data structures. We used Zillow's shapefiles to use as 
-the base to extract region boundaries and convert them to GeoJSON. 
+
+To create the graphical interface for the map, we used Leaflet
+\cite{Leafleta41:online,Leafletf18:online} - a library to show
+interactive maps. The team looked at a number of ways to plot the
+boundaries of each region on the map, and decided that the best way would
+be to use GeoJSON \cite{RFC7946T67:online} - a format for encoding a
+variety of geographic data structures. We used Zillow's shapefiles
+\cite{ZillowNe81:online} to use as the base to extract region boundaries
+and convert them to GeoJSON. 
+
 Unfortunately, R did not have a robust GeoJSON library and did not 
-offer the features we had in mind. We switched to Python to convert 
-the shapefile to GeoJSON files. We then realised that there 
-was no way to map the original data to the region we had. To counter this, 
-we mapped each point on the map to a region by checking if the latitude 
-and longitude of a point were inside a perticular region polygon. The mean 
-interior score of each region was used to fill the polygons, and multiple 
-points were clustered in higher zoom levels to reduce overplotting. 
-Finally, depending on the zoom level, either the regions or the points are
-shown.
+offer the features we had in mind. We switched to Python for converting
+the shapefile to GeoJSON files. We then realised that there was no way to
+map the original data to the neighborhood regions which had been defined
+by Zillow. To counter this, we mapped each point on the map to a region
+by checking if the latitude and longitude of a point were inside a
+perticular region polygon (##Which algorithm?). The mean interior score
+of each region was used to fill the polygons, and multiple points were
+clustered in higher zoom levels to reduce overplotting. Finally,
+depending on the zoom level, either the regions or the points are shown.
 
 
 \subsection{Data Modeling}
